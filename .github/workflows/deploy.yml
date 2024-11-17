@@ -43,7 +43,18 @@ jobs:
           source: ./build/libs/*.jar
           target: /home/actions/app/
 
-      # Step 6: Deploy to remote server via SSH
+      # Step 6: Kill application running on port 3010
+      - name: Kill application on port 3010
+        uses: appleboy/ssh-action@v0.1.1
+        with:
+          host: ${{ secrets.REMOTE_IP }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            fuser -k 3010/tcp
+
+      # Step 7: Deploy to remote server via SSH
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.1
         with:
@@ -54,7 +65,7 @@ jobs:
           script: |
             nohup java -jar /home/actions/app/build/libs/*.jar > /home/actions/app/build/libs/app.log 2>&1 &
 
-      # Step 7: Clean up (Optional)
+      # Step 8: Clean up (Optional)
       - name: Clean up
         run: |
           # This step could be used for any cleanup after the deployment (optional)
