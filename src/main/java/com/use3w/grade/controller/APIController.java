@@ -3,6 +3,8 @@ package com.use3w.grade.controller;
 import com.use3w.grade.model.Message;
 import com.use3w.grade.security.SecurityConfig;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,8 +26,8 @@ public class APIController {
     }
 
     @GetMapping(value = "/private")
-    public Message privateEndpoint() {
-        return new Message("All good. You can see this because you are Authenticated.");
+    public ResponseEntity<?> privateEndpoint() {
+        return ResponseEntity.ok(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
     }
 
     @GetMapping(value = "/private-scoped")
