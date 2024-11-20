@@ -27,7 +27,7 @@ public class APIController {
 
     @GetMapping(value = "/private")
     public ResponseEntity<?> privateEndpoint() {
-        return ResponseEntity.ok(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        return ResponseEntity.ok(SecurityContextHolder.getContext().getAuthentication());
     }
 
     @GetMapping(value = "/private-scoped")
