@@ -52,7 +52,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            fuser -k 3010/tcp
+            fuser -k 3010/tcp || echo 'There is no application running on port 3010'
 
       # Step 7: Deploy to remote server via SSH
       - name: Deploy via SSH
