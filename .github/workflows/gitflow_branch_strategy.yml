@@ -1,0 +1,24 @@
+name: Check Gitflow Branching
+
+on:
+  pull_request:
+    branches: [ '*' ]
+
+jobs:
+  check_branch_name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch name
+        run: |
+          if [[ ! "${{ github.ref }}" =~ ^feature\/.* ]]; then
+            echo "Error: PR branch should follow 'feature/*' naming convention."
+            exit 1
+          fi
+          if [[ ! "${{ github.ref }}" =~ ^release\/.* ]]; then
+            echo "Error: PR branch should follow 'release/*' naming convention."
+            exit 1
+          fi
+          if [[ ! "${{ github.ref }}" =~ ^hotfix\/.* ]]; then
+            echo "Error: PR branch should follow 'hotfix/*' naming convention."
+            exit 1
+          fi
