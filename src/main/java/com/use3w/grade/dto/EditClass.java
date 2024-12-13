@@ -2,9 +2,8 @@ package com.use3w.grade.dto;
 
 import java.util.UUID;
 
-public record ClassDetails(
+public record EditClass(
         UUID id,
-        String name,
-        Boolean active
+        String name
 ) {
 }

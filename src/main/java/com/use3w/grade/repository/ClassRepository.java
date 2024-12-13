@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface ClassRepository extends JpaRepository<Class, UUID> {
 
     List<Class> findClassesByCreatedBy(String createdBy);
+
+    Class findByIdAndCreatedBy(UUID id, String createdBy);
 }
