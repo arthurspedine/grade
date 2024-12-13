@@ -16,5 +16,20 @@ public class Class {
     private String name;
 
     @Column(nullable = false)
-    private String created_by;
+    private String createdBy;
+
+    public Class() {
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
 }
