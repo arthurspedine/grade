@@ -4,17 +4,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.use3w.grade.infra.http.OAuthUserRequest;
 import com.use3w.grade.model.UndeterminedUser;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
 
-    @Autowired
-    private OAuthUserRequest request;
+    private final OAuthUserRequest request;
 
-    @Autowired
-    private TokenService tokenService;
+    private final TokenService tokenService;
+
+    public UserService(OAuthUserRequest request, TokenService tokenService) {
+        this.request = request;
+        this.tokenService = tokenService;
+    }
 
     public UndeterminedUser fetchUndeterminedUserByHeader(String authHeader) {
         String token = tokenService.getTokenValue(authHeader);

@@ -6,7 +6,6 @@ import com.use3w.grade.dto.EditClass;
 import com.use3w.grade.model.UndeterminedUser;
 import com.use3w.grade.service.ClassService;
 import com.use3w.grade.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,11 +17,14 @@ import java.util.UUID;
 @RequestMapping("/classes")
 public class ClassController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private ClassService classService;
+    private final ClassService classService;
+
+    public ClassController(UserService userService, ClassService classService) {
+        this.userService = userService;
+        this.classService = classService;
+    }
 
     @GetMapping
     public ResponseEntity<List<ClassDetails>> getAllClasses(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {

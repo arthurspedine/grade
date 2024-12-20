@@ -7,20 +7,19 @@ import com.use3w.grade.model.Class;
 import com.use3w.grade.model.UndeterminedUser;
 import com.use3w.grade.repository.ClassRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class ClassService {
 
-    @Autowired
-    private ClassRepository repository;
-    @Autowired
-    private ClassRepository classRepository;
+    private final ClassRepository classRepository;
+
+    public ClassService(ClassRepository classRepository) {
+        this.classRepository = classRepository;
+    }
 
     public List<ClassDetails> findAllClassesByUndeterminedUser(UndeterminedUser user) {
         List<Class> classList = getAllClassesByUndeterminedUser(user);
@@ -31,31 +30,31 @@ public class ClassService {
         Class newClass = new Class();
         newClass.setName(createClass.name());
         newClass.setCreatedBy(user.email());
-        repository.save(newClass);
+        classRepository.save(newClass);
     }
 
 
     public void editClass(UndeterminedUser user, EditClass editClass) {
         Class requestedClass = getClass(user, editClass.id());
         requestedClass.setName(editClass.name());
-        repository.save(requestedClass);
+        classRepository.save(requestedClass);
     }
 
     public void deleteClass(UndeterminedUser user, UUID id) {
         Class requestedClass = getClass(user, id);
         requestedClass.disableClass();
-        repository.save(requestedClass);
+        classRepository.save(requestedClass);
     }
 
     private Class getClass(UndeterminedUser user, UUID id) {
-        Class requestedClass = repository.findByIdAndCreatedBy(id, user.email());
+        Class requestedClass = classRepository.findByIdAndCreatedBy(id, user.email());
         if (requestedClass == null)
             throw new EntityNotFoundException("Class not found.");
         return requestedClass;
     }
 
     private List<Class> getAllClassesByUndeterminedUser(UndeterminedUser user) {
-        return repository.findClassesByCreatedBy(user.email());
+        return classRepository.findClassesByCreatedBy(user.email());
     }
 
 }
