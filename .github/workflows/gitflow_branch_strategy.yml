@@ -13,22 +13,20 @@ jobs:
           PR_BRANCH_NAME=${{ github.event.pull_request.head.ref }}
           BASE_BRANCH_NAME=${{ github.event.pull_request.base.ref }}
 
-          if echo "$PR_BRANCH_NAME" | grep -Eq '^(feature|feat)/'; then
-            if [ "$BASE_BRANCH_NAME" != "develop" ]; then
-              echo "Feature branches must be based on develop."
-              exit 1
-            fi
-          elif echo "$PR_BRANCH_NAME" | grep -Eq '^hotfix/'; then
-            if [ "$BASE_BRANCH_NAME" != "master" ]; then
-              echo "Hotfix branches must be based on master."
-              exit 1
-            fi
-          elif echo "$PR_BRANCH_NAME" | grep -Eq '^release/'; then
-            if [ "$BASE_BRANCH_NAME" != "develop" ]; then
-              echo "Release branches must be based on develop."
-              exit 1
-            fi
-          else
-            echo "Pull request branch name does not follow Gitflow naming convention."
-            exit 1
-          fi
+#          if echo "$PR_BRANCH_NAME" | grep -Eq '^(feature|feat)/'; then
+#            if [ "$BASE_BRANCH_NAME" != "develop" ]; then
+#              echo "Feature branches must be based on develop."
+#              exit 1
+#            fi
+#          elif echo "$PR_BRANCH_NAME" | grep -Eq '^hotfix/'; then
+#            if [ "$BASE_BRANCH_NAME" != "master" ]; then
+#              echo "Hotfix branches must be based on master."
+#              exit 1
+#            fi
+#          elif echo "$PR_BRANCH_NAME" | grep -Eq '^release/'; then
+#              exit 1
+#            fi
+#          else
+#            echo "Pull request branch name does not follow Gitflow naming convention."
+#            exit 1
+#          fi

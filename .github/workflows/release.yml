@@ -16,11 +16,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: gitflow-workflow-action release workflows
-        uses: hoangvvo/gitflow-workflow-action@<TAG>
+        uses: hoangvvo/gitflow-workflow-action@0.3.7
         with:
           develop_branch: "develop"
           main_branch: "master"
-          merge_back_from_main: false
+          merge_back_from_main: true
           version: ${{ inputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
