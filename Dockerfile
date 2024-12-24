@@ -7,3 +7,4 @@ RUN gradle build
 
 CMD ["gradle", "clean", "bootRun"]
 EXPOSE 8080
+

@@ -1,24 +1,32 @@
-name: Check Gitflow Branching
+name: Gitflow branching strategy validator
 
 on:
   pull_request:
     branches: [ '*' ]
 
 jobs:
-  check_branch_name:
+  workflow:
     runs-on: ubuntu-latest
     steps:
-      - name: Check branch name
+      - name: Check branch name and base branch
         run: |
-          if [[ ! "${{ github.ref }}" =~ ^feature\/.* ]]; then
-            echo "Error: PR branch should follow 'feature/*' naming convention."
-            exit 1
-          fi
-          if [[ ! "${{ github.ref }}" =~ ^release\/.* ]]; then
-            echo "Error: PR branch should follow 'release/*' naming convention."
-            exit 1
-          fi
-          if [[ ! "${{ github.ref }}" =~ ^hotfix\/.* ]]; then
-            echo "Error: PR branch should follow 'hotfix/*' naming convention."
-            exit 1
-          fi
+          PR_BRANCH_NAME=${{ github.event.pull_request.head.ref }}
+          BASE_BRANCH_NAME=${{ github.event.pull_request.base.ref }}
+
+#          if echo "$PR_BRANCH_NAME" | grep -Eq '^(feature|feat)/'; then
+#            if [ "$BASE_BRANCH_NAME" != "develop" ]; then
+#              echo "Feature branches must be based on develop."
+#              exit 1
+#            fi
+#          elif echo "$PR_BRANCH_NAME" | grep -Eq '^hotfix/'; then
+#            if [ "$BASE_BRANCH_NAME" != "master" ]; then
+#              echo "Hotfix branches must be based on master."
+#              exit 1
+#            fi
+#          elif echo "$PR_BRANCH_NAME" | grep -Eq '^release/'; then
+#              exit 1
+#            fi
+#          else
+#            echo "Pull request branch name does not follow Gitflow naming convention."
+#            exit 1
+#          fi

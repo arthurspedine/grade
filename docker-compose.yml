@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0.40-debian
+    environment:
+      MYSQL_ROOT_PASSWORD: ${GRADE_DB_PASSWORD}
+      MYSQL_USER: ${GRADE_DB_USER}
+      MYSQL_PASSWORD: ${GRADE_DB_PASSWORD}
+      MYSQL_DATABASE: grade
+    ports:
+      - "3306:3306"
