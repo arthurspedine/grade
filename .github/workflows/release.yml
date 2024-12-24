@@ -20,7 +20,7 @@ jobs:
         with:
           develop_branch: "develop"
           main_branch: "master"
-          merge_back_from_main: false
+          merge_back_from_main: true
           version: ${{ inputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

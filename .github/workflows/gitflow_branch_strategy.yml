@@ -24,8 +24,6 @@ jobs:
               exit 1
             fi
           elif echo "$PR_BRANCH_NAME" | grep -Eq '^release/'; then
-            if [ "$BASE_BRANCH_NAME" != "develop" ]; then
-              echo "Release branches must be based on develop."
               exit 1
             fi
           else
