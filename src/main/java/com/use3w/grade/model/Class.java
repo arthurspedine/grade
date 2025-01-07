@@ -21,6 +21,10 @@ public class Class {
     @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 1")
     private Boolean active = true;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ECategory category = ECategory.BACHELORS;
+
     public Class() {
     }
 
@@ -52,4 +56,15 @@ public class Class {
         this.createdBy = createdBy;
     }
 
+    public Boolean getActive() {
+        return active;
+    }
+
+    public ECategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(ECategory category) {
+        this.category = category;
+    }
 }
