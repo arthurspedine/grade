@@ -1,10 +1,12 @@
 package com.use3w.grade.controller;
 
-import com.use3w.grade.dto.ClassDetails;
-import com.use3w.grade.dto.CreateClass;
-import com.use3w.grade.dto.EditClass;
+import com.use3w.grade.dto.ClassDetailsDTO;
+import com.use3w.grade.dto.CreateClassDTO;
+import com.use3w.grade.dto.EditClassDTO;
+import com.use3w.grade.model.Class;
 import com.use3w.grade.model.UndeterminedUser;
 import com.use3w.grade.service.ClassService;
+import com.use3w.grade.service.StudentService;
 import com.use3w.grade.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
@@ -22,13 +24,16 @@ public class ClassController {
 
     private final ClassService classService;
 
-    public ClassController(UserService userService, ClassService classService) {
+    private final StudentService studentService;
+
+    public ClassController(UserService userService, ClassService classService, StudentService studentService) {
         this.userService = userService;
         this.classService = classService;
+        this.studentService = studentService;
     }
 
     @GetMapping
-    public ResponseEntity<List<ClassDetails>> getAllClasses(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+    public ResponseEntity<List<ClassDetailsDTO>> getAllClasses(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
         return ResponseEntity.ok(classService.findAllClassesByUndeterminedUser(user));
     }
@@ -36,20 +41,21 @@ public class ClassController {
     @PostMapping
     public ResponseEntity<Void> createClass(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
-            @RequestBody @Valid CreateClass createClass
+            @RequestBody @Valid CreateClassDTO dto
     ) {
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        classService.createClassByUser(user, createClass);
+        Class newClass = classService.createClassByUser(user, dto);
+        studentService.addStudentsToClass(newClass, dto.students());
         return ResponseEntity.status(201).build();
     }
 
     @PutMapping
     public ResponseEntity<Void> editClass(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
-            @RequestBody @Valid EditClass editClass
+            @RequestBody @Valid EditClassDTO dto
     ) {
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        classService.editClass(user, editClass);
+        classService.editClass(user, dto);
         return ResponseEntity.status(204).build();
     }
 
