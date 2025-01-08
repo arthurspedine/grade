@@ -6,6 +6,7 @@ import com.use3w.grade.dto.EditClass;
 import com.use3w.grade.model.UndeterminedUser;
 import com.use3w.grade.service.ClassService;
 import com.use3w.grade.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +36,7 @@ public class ClassController {
     @PostMapping
     public ResponseEntity<Void> createClass(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
-            @RequestBody CreateClass createClass
+            @RequestBody @Valid CreateClass createClass
     ) {
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
         classService.createClassByUser(user, createClass);
@@ -45,7 +46,7 @@ public class ClassController {
     @PutMapping
     public ResponseEntity<Void> editClass(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
-            @RequestBody EditClass editClass
+            @RequestBody @Valid EditClass editClass
     ) {
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
         classService.editClass(user, editClass);
