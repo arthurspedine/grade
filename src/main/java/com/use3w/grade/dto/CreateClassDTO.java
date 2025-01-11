@@ -2,8 +2,7 @@ package com.use3w.grade.dto;
 
 import com.use3w.grade.model.ECategory;
 import jakarta.validation.constraints.NotNull;
-
-import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 public record CreateClassDTO(
         @NotNull
@@ -11,6 +10,6 @@ public record CreateClassDTO(
         @NotNull
         ECategory category,
         @NotNull
-        List<StudentDTO> students
+        MultipartFile file
 ) {
 }

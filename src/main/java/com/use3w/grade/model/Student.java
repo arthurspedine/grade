@@ -1,5 +1,6 @@
 package com.use3w.grade.model;
 
+import com.opencsv.bean.CsvBindByName;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -11,9 +12,11 @@ public class Student {
 
     @Id
     @Column(nullable = false, unique = true)
+    @CsvBindByName(column = "rm", required = true)
     private String rm;
 
     @Column(nullable = false)
+    @CsvBindByName(column = "name", required = true)
     private String name;
 
     @ManyToMany
