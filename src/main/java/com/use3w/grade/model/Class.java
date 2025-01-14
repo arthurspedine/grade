@@ -2,6 +2,8 @@ package com.use3w.grade.model;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -24,6 +26,9 @@ public class Class {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ECategory category = ECategory.BACHELORS;
+
+    @ManyToMany(mappedBy = "classes")
+    private Set<Student> students = new HashSet<>();
 
     public Class() {
     }
@@ -66,5 +71,9 @@ public class Class {
 
     public void setCategory(ECategory category) {
         this.category = category;
+    }
+
+    public Set<Student> getStudents() {
+        return students;
     }
 }

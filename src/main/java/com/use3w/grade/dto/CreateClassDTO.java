@@ -2,11 +2,14 @@ package com.use3w.grade.dto;
 
 import com.use3w.grade.model.ECategory;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.web.multipart.MultipartFile;
 
-public record CreateClass(
+public record CreateClassDTO(
         @NotNull
         String name,
         @NotNull
-        ECategory category
+        ECategory category,
+        @NotNull
+        MultipartFile file
 ) {
 }
