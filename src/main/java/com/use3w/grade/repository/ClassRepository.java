@@ -11,4 +11,6 @@ public interface ClassRepository extends JpaRepository<Class, UUID> {
     List<Class> findClassesByCreatedByAndActiveIsTrue(String createdBy);
 
     Class findByIdAndCreatedByAndActiveIsTrue(UUID id, String createdBy);
+
+    List<Class> findClassesByIdInAndActiveIsTrueAndCreatedBy(List<UUID> ids, String createdBy);
 }

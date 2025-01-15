@@ -63,6 +63,10 @@ public class ClassService {
                         .map(s -> new StudentDTO(s.getRm(), s.getName())).toList());
     }
 
+    public List<Class> findClassesByUserAndId(UndeterminedUser user, List<UUID> ids) {
+        return classRepository.findClassesByIdInAndActiveIsTrueAndCreatedBy(ids, user.email());
+    }
+
     private ClassDetailsDTO mapperDetailsToDTO(Class c) {
         return new ClassDetailsDTO(c.getId(), c.getName(),
                 c.getCategory(), c.getStatus());
