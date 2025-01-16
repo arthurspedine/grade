@@ -1,0 +1,4 @@
+CREATE TABLE assessments(
+    id BINARY(16) NOT NULL PRIMARY KEY,
+    name VARCHAR(200) NOT NULL
+);

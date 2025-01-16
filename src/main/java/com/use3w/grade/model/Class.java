@@ -2,6 +2,9 @@ package com.use3w.grade.model;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -20,6 +23,16 @@ public class Class {
 
     @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 1")
     private Boolean active = true;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ECategory category = ECategory.BACHELORS;
+
+    @ManyToMany(mappedBy = "classes")
+    private Set<Student> students = new HashSet<>();
+
+    @ManyToMany(mappedBy = "classes")
+    private Set<Assessment> assessments = new HashSet<>();
 
     public Class() {
     }
@@ -52,4 +65,19 @@ public class Class {
         this.createdBy = createdBy;
     }
 
+    public Boolean getActive() {
+        return active;
+    }
+
+    public ECategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(ECategory category) {
+        this.category = category;
+    }
+
+    public Set<Student> getStudents() {
+        return students;
+    }
 }
