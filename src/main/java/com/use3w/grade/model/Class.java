@@ -3,6 +3,7 @@ package com.use3w.grade.model;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -29,6 +30,9 @@ public class Class {
 
     @ManyToMany(mappedBy = "classes")
     private Set<Student> students = new HashSet<>();
+
+    @ManyToMany(mappedBy = "classes")
+    private Set<Assessment> assessments = new HashSet<>();
 
     public Class() {
     }

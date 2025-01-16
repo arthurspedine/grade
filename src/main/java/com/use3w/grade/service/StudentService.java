@@ -34,23 +34,10 @@ public class StudentService {
             Map<String, Student> csvStudentsMap = studentsFromCsv.stream()
                     .collect(Collectors.toMap(Student::getRm, student -> student));
 
-            // Getting the existingStudents from db
-            List<Student> existingStudents = repository.findByRmIn(new ArrayList<>(csvStudentsMap.keySet()));
-
-            // Filter those aren't saved in db
-            Map<String, Student> existingStudentsMap = existingStudents.stream()
-                    .collect(Collectors.toMap(Student::getRm, student -> student));
-
-
-            // Creating the new students and saving
-            List<Student> newStudents = creatingNewStudents(csvStudentsMap, existingStudentsMap);
-
-            if (!newStudents.isEmpty()) {
-                repository.saveAll(newStudents);
-            }
+            StudentsMap studentsMap = studentsSetup(csvStudentsMap);
 
             // Merge the lists to add each to the class
-            List<Student> allStudents = Stream.concat(existingStudents.stream(), newStudents.stream())
+            List<Student> allStudents = Stream.concat(studentsMap.existingStudents.stream(), studentsMap.newStudents.stream())
                     .collect(Collectors.toList());
 
             addStudentsListToClass(allStudents, newClass);
@@ -78,21 +65,11 @@ public class StudentService {
 
             removeStudentsFromClass(studentsToRemove, editedClass);
 
-            // get students from database that are in csv
-            List<Student> existingStudents = repository.findByRmIn(new ArrayList<>(csvStudentsMap.keySet()));
-            Map<String, Student> existingStudentsMap = existingStudents.stream()
-                    .collect(Collectors.toMap(Student::getRm, student -> student));
+            StudentsMap studentsMap = studentsSetup(csvStudentsMap);
 
-            // Creating the new students and saving
-            List<Student> newStudents = creatingNewStudents(csvStudentsMap, existingStudentsMap);
-
-            if (!newStudents.isEmpty()) {
-                repository.saveAll(newStudents);
-            }
-
-            List<Student> studentsToAdd = Stream.concat(existingStudents.stream()
+            List<Student> studentsToAdd = Stream.concat(studentsMap.existingStudents.stream()
                                     .filter(student -> !editedClass.getStudents().contains(student)),
-                            newStudents.stream())
+                            studentsMap.newStudents.stream())
                     .toList();
 
             addStudentsListToClass(studentsToAdd, editedClass);
@@ -102,6 +79,25 @@ public class StudentService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private record StudentsMap(
+            List<Student> existingStudents, List<Student> newStudents
+    ) {}
+
+    private StudentsMap studentsSetup(Map<String, Student> fromMap) {
+        // get students from database that are in csv
+        List<Student> existingStudents = repository.findByRmIn(new ArrayList<>(fromMap.keySet()));
+        Map<String, Student> existingStudentsMap = existingStudents.stream()
+                .collect(Collectors.toMap(Student::getRm, student -> student));
+
+        // Creating the new students and saving
+        List<Student> newStudents = creatingNewStudents(fromMap, existingStudentsMap);
+
+        if (!newStudents.isEmpty()) {
+            repository.saveAll(newStudents);
+        }
+        return new StudentsMap(existingStudents, newStudents);
     }
 
     private List<Student> creatingNewStudents(Map<String, Student> csvStudentsMap, Map<String, Student> existingStudentsMap) {
