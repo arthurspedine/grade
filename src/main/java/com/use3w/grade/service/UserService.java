@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.use3w.grade.infra.http.OAuthUserRequest;
 import com.use3w.grade.model.UndeterminedUser;
+import jakarta.validation.ValidationException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,7 +26,7 @@ public class UserService {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(auth, UndeterminedUser.class);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new ValidationException(e.getLocalizedMessage());
         }
     }
 

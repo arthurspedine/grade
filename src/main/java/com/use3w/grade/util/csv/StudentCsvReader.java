@@ -3,6 +3,7 @@ package com.use3w.grade.util.csv;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.exceptions.CsvException;
+import com.use3w.grade.infra.exception.StudentCsvValidationException;
 import com.use3w.grade.model.Student;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +22,7 @@ public class StudentCsvReader implements CsvReader<Student> {
             List<String> validationErrors = new ArrayList<>();
 
             // CONFIG CSVTOBEAN WITH VALIDATIONS
+            final int[] index = {1};
             CsvToBean<Student> csvToBean = new CsvToBeanBuilder<Student>(reader)
                     .withType(Student.class)
                     .withIgnoreLeadingWhiteSpace(true)
@@ -30,13 +32,14 @@ public class StudentCsvReader implements CsvReader<Student> {
                         // VALIDATION
                         boolean isValid = true;
                         if (line[0] == null || line[0].trim().isEmpty()) {
-                            validationErrors.add("Linha " + line[0] + ": RM é obrigatório");
+                            validationErrors.add("Linha " + index[0] + ": RM é obrigatório");
                             isValid = false;
                         }
                         if (line[1] == null || line[1].trim().isEmpty()) {
-                            validationErrors.add("Linha " + line[0] + ": Nome é obrigatório");
+                            validationErrors.add("Linha " + index[0] + ": Nome é obrigatório");
                             isValid = false;
                         }
+                        index[0]++;
                         return isValid;
                     })
                     .build();
@@ -54,8 +57,7 @@ public class StudentCsvReader implements CsvReader<Student> {
 
             // IF THERE IS AN ERROR, IT THROWS THE EXCEPTION
             if (!validationErrors.isEmpty()) {
-//                throw new StudentCsvValidationException(validationErrors);
-                throw new RuntimeException();
+                throw new StudentCsvValidationException(validationErrors);
             }
 
             return students;

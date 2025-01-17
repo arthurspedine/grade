@@ -1,7 +1,6 @@
 package com.use3w.grade.model;
 
 import jakarta.persistence.*;
-import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.List;
