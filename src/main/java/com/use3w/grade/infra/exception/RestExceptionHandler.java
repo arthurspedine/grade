@@ -66,18 +66,4 @@ public class RestExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ExceptionData(ex.getLocalizedMessage()));
     }
 
-    public record ExceptionData(
-            String error
-    ) {
-    }
-
-    public record FieldExceptionData(
-            String field,
-            String message
-    ) {
-        public FieldExceptionData(FieldError error) {
-            this(error.getField(), error.getDefaultMessage());
-        }
-    }
-
 }
