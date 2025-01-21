@@ -6,6 +6,7 @@ import com.use3w.grade.model.Assessment;
 import com.use3w.grade.model.Class;
 import com.use3w.grade.model.UndeterminedUser;
 import com.use3w.grade.repository.AssessmentRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,7 @@ public class AssessmentService {
     public void createAssessmentByUser(CreateAssessmentDTO dto, UndeterminedUser user) {
         List<Class> classes = classService.findClassesByUserAndId(user, dto.classes().stream().map(CreateAssessmentDTO.AddClassToAssessmentDTO::id).toList());
         if (classes.isEmpty())
-            throw new RuntimeException("Nenhuma classe encontrada.");
+            throw new EntityNotFoundException("Nenhuma classe encontrada.");
         Assessment assessment = new Assessment(dto.name(), user.email(), classes);
         assessment = assessmentRepository.save(assessment);
         assessmentCategoryService.addCategoriesToAssessment(assessment, dto.categories());
