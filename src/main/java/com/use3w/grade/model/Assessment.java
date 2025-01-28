@@ -27,7 +27,7 @@ public class Assessment {
     private Set<Class> classes = new HashSet<>();
 
     @OneToMany(mappedBy = "assessment")
-    private Set<AssessmentCategory> categories = new HashSet<>();
+    private Set<AssessmentQuestion> questions = new HashSet<>();
 
     @Column(nullable = false)
     private String createdBy;
@@ -57,15 +57,7 @@ public class Assessment {
         return classes;
     }
 
-    public Set<AssessmentCategory> getCategories() {
-        return categories;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
+    public Set<AssessmentQuestion> getQuestions() {
+        return questions;
     }
 }

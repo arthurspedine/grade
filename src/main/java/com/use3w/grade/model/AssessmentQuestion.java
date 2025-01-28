@@ -5,8 +5,8 @@ import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "assessments_category")
-public class AssessmentCategory {
+@Table(name = "assessments_questions")
+public class AssessmentQuestion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -21,25 +21,21 @@ public class AssessmentCategory {
     @Column(nullable = false)
     private Integer score;
 
-    public AssessmentCategory() {
+    @Column(nullable = false)
+    private Integer questionNumber;
+
+    public AssessmentQuestion() {
     }
 
-    public AssessmentCategory(Assessment assessment, String name, Integer score) {
+    public AssessmentQuestion(Assessment assessment, String name, Integer score, Integer questionNumber) {
         this.assessment = assessment;
         this.name = name;
         this.score = score;
+        setQuestionNumber(questionNumber);
     }
 
     public UUID getId() {
         return id;
-    }
-
-    public Assessment getAssessment() {
-        return assessment;
-    }
-
-    public void setAssessment(Assessment assessment) {
-        this.assessment = assessment;
     }
 
     public String getName() {
@@ -54,7 +50,9 @@ public class AssessmentCategory {
         return score;
     }
 
-    public void setScore(Integer score) {
-        this.score = score;
+    public void setQuestionNumber(Integer questionNumber) {
+        if (questionNumber <= 0)
+            throw new IllegalArgumentException("O número da questão não pode ser menor que 0");
+        this.questionNumber = questionNumber;
     }
 }

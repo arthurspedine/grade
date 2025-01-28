@@ -1,7 +1,9 @@
 package com.use3w.grade.service;
 
 import com.use3w.grade.dto.AssessmentDetailsDTO;
+import com.use3w.grade.dto.AssessmentInfoDTO;
 import com.use3w.grade.dto.CreateAssessmentDTO;
+import com.use3w.grade.dto.StudentDTO;
 import com.use3w.grade.model.Assessment;
 import com.use3w.grade.model.Class;
 import com.use3w.grade.model.UndeterminedUser;
@@ -11,6 +13,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,12 +21,12 @@ public class AssessmentService {
 
     private final ClassService classService;
     private final AssessmentRepository assessmentRepository;
-    private final AssessmentCategoryService assessmentCategoryService;
+    private final AssessmentQuestionService assessmentQuestionService;
 
-    public AssessmentService(ClassService classService, AssessmentRepository assessmentRepository, AssessmentCategoryService assessmentCategoryService) {
+    public AssessmentService(ClassService classService, AssessmentRepository assessmentRepository, AssessmentQuestionService assessmentQuestionService) {
         this.classService = classService;
         this.assessmentRepository = assessmentRepository;
-        this.assessmentCategoryService = assessmentCategoryService;
+        this.assessmentQuestionService = assessmentQuestionService;
     }
 
     @Transactional
@@ -33,12 +36,24 @@ public class AssessmentService {
             throw new EntityNotFoundException("Nenhuma classe encontrada.");
         Assessment assessment = new Assessment(dto.name(), user.email(), classes);
         assessment = assessmentRepository.save(assessment);
-        assessmentCategoryService.addCategoriesToAssessment(assessment, dto.categories());
+        assessmentQuestionService.addCategoriesToAssessment(assessment, dto.questions());
     }
 
     public List<AssessmentDetailsDTO> listAssessmentsDetailsByUser(UndeterminedUser user) {
         List<Assessment> assessments = findAllByCreatedBy(user.email());
         return assessments.stream().map(this::mapperToDTO).toList();
+    }
+
+    public AssessmentInfoDTO getAssessmentInfoByUserAndAssessmentIdAndClassId(UndeterminedUser user, UUID id, UUID classId) {
+        Assessment assessment = assessmentRepository.getAssessmentByEmailIdAndClassId(user.email(), id, classId);
+        if (assessment == null)
+            throw new EntityNotFoundException("Avaliação não encontrada.");
+
+        Class assessmentClass = assessment.getClasses().stream().findFirst().orElseThrow();
+        return new AssessmentInfoDTO(assessment.getName(), assessmentClass.getStudents()
+                .stream()
+                .map(s -> new StudentDTO(s.getRm(), s.getName())).toList()
+        );
     }
 
     private List<Assessment> findAllByCreatedBy(String createdBy) {
