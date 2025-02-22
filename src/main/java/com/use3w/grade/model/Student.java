@@ -27,6 +27,9 @@ public class Student {
     )
     private Set<Class> classes = new HashSet<>();
 
+    @OneToMany
+    private Set<AssessmentStudent> assessments = new HashSet<>();
+
     public Student() {
     }
 

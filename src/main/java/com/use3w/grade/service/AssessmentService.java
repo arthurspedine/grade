@@ -4,15 +4,15 @@ import com.use3w.grade.dto.AssessmentDetailsDTO;
 import com.use3w.grade.dto.AssessmentInfoDTO;
 import com.use3w.grade.dto.CreateAssessmentDTO;
 import com.use3w.grade.dto.StudentDTO;
-import com.use3w.grade.model.Assessment;
+import com.use3w.grade.model.*;
 import com.use3w.grade.model.Class;
-import com.use3w.grade.model.UndeterminedUser;
 import com.use3w.grade.repository.AssessmentRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -22,11 +22,15 @@ public class AssessmentService {
     private final ClassService classService;
     private final AssessmentRepository assessmentRepository;
     private final AssessmentQuestionService assessmentQuestionService;
+    private final AssessmentStudentService assessmentStudentService;
+    private final AssessmentClassService assessmentClassService;
 
-    public AssessmentService(ClassService classService, AssessmentRepository assessmentRepository, AssessmentQuestionService assessmentQuestionService) {
+    public AssessmentService(ClassService classService, AssessmentRepository assessmentRepository, AssessmentQuestionService assessmentQuestionService, AssessmentStudentService assessmentStudentService, AssessmentClassService assessmentClassService) {
         this.classService = classService;
         this.assessmentRepository = assessmentRepository;
         this.assessmentQuestionService = assessmentQuestionService;
+        this.assessmentStudentService = assessmentStudentService;
+        this.assessmentClassService = assessmentClassService;
     }
 
     @Transactional
@@ -34,9 +38,11 @@ public class AssessmentService {
         List<Class> classes = classService.findClassesByUserAndId(user, dto.classes().stream().map(CreateAssessmentDTO.AddClassToAssessmentDTO::id).toList());
         if (classes.isEmpty())
             throw new EntityNotFoundException("Nenhuma classe encontrada.");
-        Assessment assessment = new Assessment(dto.name(), user.email(), classes);
+        Assessment assessment = new Assessment(dto.name(), user.email());
         assessment = assessmentRepository.save(assessment);
         assessmentQuestionService.addCategoriesToAssessment(assessment, dto.questions());
+        List<AssessmentClass> assessmentClasses = assessmentClassService.saveAssessmentClass(assessment, classes);
+        assessmentStudentService.addStudentsToAssessment(assessmentClasses);
     }
 
     public List<AssessmentDetailsDTO> listAssessmentsDetailsByUser(UndeterminedUser user) {
@@ -49,8 +55,8 @@ public class AssessmentService {
         if (assessment == null)
             throw new EntityNotFoundException("Avaliação não encontrada.");
 
-        Class assessmentClass = assessment.getClasses().stream().findFirst().orElseThrow();
-        return new AssessmentInfoDTO(assessment.getName(), assessmentClass.getStudents()
+        AssessmentClass assessmentClass = assessment.getClasses().stream().findFirst().orElseThrow();
+        return new AssessmentInfoDTO(assessment.getName(), assessmentClass.getAssessmentClass().getStudents()
                 .stream()
                 .map(s -> new StudentDTO(s.getRm(), s.getName())).toList()
         );
@@ -62,6 +68,14 @@ public class AssessmentService {
 
     private AssessmentDetailsDTO mapperToDTO(Assessment assessment) {
         return new AssessmentDetailsDTO(assessment.getId(), assessment.getName(),
-                assessment.getClasses().stream().map(c -> new AssessmentDetailsDTO.AssessmentDetailsClassDTO(c.getId(), c.getName())).collect(Collectors.toSet()));
+                assessment.getClasses().stream().map(assessmentClass -> {
+                    Class c = assessmentClass.getAssessmentClass();
+                    Set<Student> classStudents = c.getStudents();
+                    return new AssessmentDetailsDTO.AssessmentDetailsClassDTO(
+                            c.getId(), c.getName(),
+                            assessmentStudentService.countStudentsEvalueted(c, assessment),
+                            classStudents.size()
+                            );
+                }).collect(Collectors.toSet()));
     }
 }

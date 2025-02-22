@@ -2,6 +2,7 @@ package com.use3w.grade.model;
 
 import jakarta.persistence.*;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -23,6 +24,9 @@ public class AssessmentQuestion {
 
     @Column(nullable = false)
     private Integer questionNumber;
+
+    @OneToMany
+    private Set<AssessmentAnswer> answers;
 
     public AssessmentQuestion() {
     }
@@ -54,5 +58,9 @@ public class AssessmentQuestion {
         if (questionNumber <= 0)
             throw new IllegalArgumentException("O número da questão não pode ser menor que 0");
         this.questionNumber = questionNumber;
+    }
+
+    public Integer getQuestionNumber() {
+        return questionNumber;
     }
 }
