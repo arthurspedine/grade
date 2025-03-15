@@ -23,11 +23,15 @@ public class AssessmentQuestionService {
     public void addCategoriesToAssessment(Assessment assessment, List<CreateAssessmentQuestionDTO> dto) {
         if (dto == null || dto.isEmpty())
             throw new NullPointerException("Lista de questões não pode ser vazia.");
-        List<AssessmentQuestion> questions = null;
+        List<AssessmentQuestion> questions;
+        final Integer[] totalScore = {0};
         try {
             questions = dto.stream()
                     .flatMap(q -> q.categories().stream()
-                            .map(c -> new AssessmentQuestion(assessment, c.name(), c.score(), q.questionNumber())))
+                            .map(c -> {
+                                totalScore[0] += c.score();
+                                return new AssessmentQuestion(assessment, c.name(), c.score(), q.questionNumber());
+                            }))
                     .toList();
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -36,9 +40,8 @@ public class AssessmentQuestionService {
         assessment.getQuestions().addAll(questions);
 
         // check if the sum of the scores equals 100
-        int sum = questions.stream().mapToInt(AssessmentQuestion::getScore).sum();
-        if (sum != 100) {
-            if (sum > 100) {
+        if (totalScore[0] != 100) {
+            if (totalScore[0] > 100) {
                 throw new ValidationException("A soma das notas excede o máximo: 100");
             }
             throw new ValidationException("A soma das notas deve ser igual a 100");

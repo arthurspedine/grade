@@ -15,8 +15,13 @@ public class Assessment {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "assessment")
-    private Set<AssessmentClass> classes = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+            name = "assessments_classes",
+            joinColumns = @JoinColumn(name = "assessment_id"),
+            inverseJoinColumns = @JoinColumn(name = "class_id")
+    )
+    private Set<Class> classes = new HashSet<>();
 
     @OneToMany(mappedBy = "assessment")
     private Set<AssessmentQuestion> questions = new HashSet<>();
@@ -27,9 +32,10 @@ public class Assessment {
     public Assessment() {
     }
 
-    public Assessment(String name, String createdBy) {
+    public Assessment(String name, String createdBy, List<Class> classes) {
         this.name = name;
         this.createdBy = createdBy;
+        this.classes.addAll(classes);
     }
 
     @Override
@@ -56,7 +62,7 @@ public class Assessment {
         this.name = name;
     }
 
-    public Set<AssessmentClass> getClasses() {
+    public Set<Class> getClasses() {
         return classes;
     }
 

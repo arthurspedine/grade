@@ -17,8 +17,8 @@ public class AssessmentStudent {
     private Student student;
 
     @ManyToOne
-    @JoinColumn(name = "assessment_class_id")
-    private AssessmentClass assessment;
+    @JoinColumn(name = "assessment_id")
+    private Assessment assessment;
 
     private String feedback;
 
@@ -30,13 +30,14 @@ public class AssessmentStudent {
     @OneToMany
     private Set<AssessmentAnswer> answers;
 
-    public AssessmentStudent(Student student, AssessmentClass assessment) {
+    public AssessmentStudent() {
+    }
+
+    public AssessmentStudent(Student student, Assessment assessment) {
         this.student = student;
         this.assessment = assessment;
         this.finished = false;
-    }
-
-    public AssessmentStudent() {
+        this.totalScore = 0d;
     }
 
     public UUID getId() {
@@ -45,10 +46,6 @@ public class AssessmentStudent {
 
     public Student getStudent() {
         return student;
-    }
-
-    public AssessmentClass getAssessment() {
-        return assessment;
     }
 
     public String getFeedback() {

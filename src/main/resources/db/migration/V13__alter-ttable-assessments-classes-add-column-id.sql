@@ -1,2 +1,0 @@
-ALTER TABLE assessments_classes
-ADD COLUMN id BINARY(16) NOT NULL PRIMARY KEY;
