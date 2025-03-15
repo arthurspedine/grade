@@ -10,6 +10,7 @@ import com.use3w.grade.model.UndeterminedUser;
 import com.use3w.grade.service.ClassService;
 import com.use3w.grade.service.StudentService;
 import com.use3w.grade.service.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +51,7 @@ public class ClassController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Transactional
     public ResponseEntity<Void> createClass(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
             @RequestParam("name") String name,

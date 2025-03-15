@@ -2,10 +2,12 @@ package com.use3w.grade.service;
 
 import com.use3w.grade.model.Class;
 import com.use3w.grade.model.Student;
+import com.use3w.grade.projection.StudentClassProjection;
 import com.use3w.grade.repository.StudentRepository;
 import com.use3w.grade.util.csv.CsvReader;
 import com.use3w.grade.util.csv.StudentCsvReader;
 import jakarta.transaction.Transactional;
+import jakarta.validation.ValidationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,6 +35,13 @@ public class StudentService {
             List<Student> studentsFromCsv = reader.readFromCsv(csvFile);
             Map<String, Student> csvStudentsMap = studentsFromCsv.stream()
                     .collect(Collectors.toMap(Student::getRm, student -> student));
+
+            List<StudentClassProjection> violatingStudents = repository.findByClassCreatedBy(newClass.getCreatedBy(), new ArrayList<>(csvStudentsMap.values().stream().toList()));
+            if (!violatingStudents.isEmpty())
+                throw new ValidationException("Os seguintes estudantes já estão registrados em outras turmas criadas pelo mesmo usuário: "
+                        + violatingStudents.stream()
+                        .map(vs -> "RM" + vs.getStudentRm() + " (" + vs.getClassName() + ")")
+                        .collect(Collectors.joining(", ")));
 
             StudentsMap studentsMap = studentsSetup(csvStudentsMap);
 

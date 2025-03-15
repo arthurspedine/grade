@@ -4,6 +4,7 @@ import com.opencsv.bean.CsvBindByName;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -31,6 +32,18 @@ public class Student {
     private Set<AssessmentStudent> assessments = new HashSet<>();
 
     public Student() {
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Student student = (Student) o;
+        return Objects.equals(rm, student.rm);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(rm);
     }
 
     public String getRm() {
