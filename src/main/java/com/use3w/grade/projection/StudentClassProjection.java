@@ -1,6 +1,8 @@
 package com.use3w.grade.projection;
 
+import org.springframework.beans.factory.annotation.Value;
+
 public interface StudentClassProjection {
-    String getStudentRm();
-    String getClassName();
+    @Value("#{'RM' + target.rm + ' (' + target.name + ')'}")
+    String getStudentClass();
 }

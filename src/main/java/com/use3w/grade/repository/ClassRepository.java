@@ -14,6 +14,6 @@ public interface ClassRepository extends JpaRepository<Class, UUID> {
 
     Class findByIdAndCreatedByAndActiveIsTrue(UUID id, String createdBy);
 
-    @Query("SELECT c FROM Class c LEFT JOIN FETCH c.students WHERE c.id IN :ids AND c.active = TRUE AND c.createdBy = :createdBy")
+    @Query("SELECT c FROM Class c WHERE c.id IN :ids AND c.active = TRUE AND c.createdBy = :createdBy")
     List<Class> findClassesByIdInAndActiveIsTrueAndCreatedBy(@Param("ids") List<UUID> ids, @Param("createdBy") String createdBy);
 }

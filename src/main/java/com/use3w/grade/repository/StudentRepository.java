@@ -13,7 +13,7 @@ public interface StudentRepository extends JpaRepository<Student, String> {
     List<Student> findByRmIn(List<String> rms);
 
     @Query("""
-                SELECT s.rm as studentRm, c.name as className
+                SELECT s.rm as rm, c.name as name
                 FROM Student s
                 JOIN s.classes c
                 WHERE c.createdBy = :createdBy

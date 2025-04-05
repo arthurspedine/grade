@@ -36,12 +36,8 @@ public class StudentService {
             Map<String, Student> csvStudentsMap = studentsFromCsv.stream()
                     .collect(Collectors.toMap(Student::getRm, student -> student));
 
-            List<StudentClassProjection> violatingStudents = repository.findByClassCreatedBy(newClass.getCreatedBy(), new ArrayList<>(csvStudentsMap.values().stream().toList()));
-            if (!violatingStudents.isEmpty())
-                throw new ValidationException("Os seguintes estudantes já estão registrados em outras turmas criadas pelo mesmo usuário: "
-                        + violatingStudents.stream()
-                        .map(vs -> "RM" + vs.getStudentRm() + " (" + vs.getClassName() + ")")
-                        .collect(Collectors.joining(", ")));
+            // Validate the students, if they are in another class with the same createdBy
+            validateStudents(newClass, csvStudentsMap);
 
             StudentsMap studentsMap = studentsSetup(csvStudentsMap);
 
@@ -67,6 +63,9 @@ public class StudentService {
             Map<String, Student> csvStudentsMap = studentsFromCsv.stream()
                     .collect(Collectors.toMap(Student::getRm, student -> student));
 
+            // Validate the students, if they are in another class with the same createdBy
+            validateStudents(editedClass, csvStudentsMap);
+
             // get students that need to be removed because aren't in csv
             List<Student> studentsToRemove = editedClass.getStudents().stream()
                     .filter(student -> !csvStudentsMap.containsKey(student.getRm()))
@@ -87,6 +86,16 @@ public class StudentService {
             repository.saveAll(studentsToAdd);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void validateStudents(Class validateClass, Map<String, Student> csvStudentsMap) {
+        List<StudentClassProjection> violatingStudents = repository.findByClassCreatedBy(validateClass.getCreatedBy(), new ArrayList<>(csvStudentsMap.values().stream().toList()));
+        if (!violatingStudents.isEmpty()) {
+            throw new ValidationException("Os seguintes estudantes já estão registrados em outras turmas criadas pelo mesmo usuário: "
+                    + violatingStudents.stream()
+                    .map(StudentClassProjection::getStudentClass)
+                    .collect(Collectors.joining(", ")));
         }
     }
 
