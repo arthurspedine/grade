@@ -1,9 +1,6 @@
 package com.use3w.grade.service;
 
-import com.use3w.grade.dto.AssessmentDetailsDTO;
-import com.use3w.grade.dto.AssessmentInfoDTO;
-import com.use3w.grade.dto.CreateAssessmentDTO;
-import com.use3w.grade.dto.StudentDTO;
+import com.use3w.grade.dto.*;
 import com.use3w.grade.model.Assessment;
 import com.use3w.grade.model.Class;
 import com.use3w.grade.model.UndeterminedUser;
@@ -47,16 +44,11 @@ public class AssessmentService {
         return assessments.stream().map(this::mapperToDTO).toList();
     }
 
-    public AssessmentInfoDTO getAssessmentInfoByUserAndAssessmentIdAndClassId(UndeterminedUser user, UUID id, UUID classId) {
+    public Assessment getAssessmentByUserAndAssessmentIdAndClassId(UndeterminedUser user, UUID id, UUID classId) {
         Assessment assessment = assessmentRepository.getAssessmentByEmailIdAndClassId(user.email(), id, classId);
         if (assessment == null)
             throw new EntityNotFoundException("Avaliação não encontrada.");
-
-        Class assessmentClass = assessment.getClasses().stream().findFirst().orElseThrow();
-        return new AssessmentInfoDTO(assessment.getName(), assessmentClass.getStudents()
-                .stream()
-                .map(s -> new StudentDTO(s.getRm(), s.getName())).toList()
-        );
+        return assessment;
     }
 
     private List<Assessment> findAllByCreatedBy(String createdBy) {

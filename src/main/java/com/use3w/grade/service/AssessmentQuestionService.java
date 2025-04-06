@@ -1,6 +1,7 @@
 package com.use3w.grade.service;
 
-import com.use3w.grade.dto.CreateAssessmentQuestionDTO;
+import com.use3w.grade.dto.AssessmentQuestionDTO;
+
 import com.use3w.grade.model.Assessment;
 import com.use3w.grade.model.AssessmentQuestion;
 import com.use3w.grade.repository.AssessmentQuestionRepository;
@@ -20,11 +21,11 @@ public class AssessmentQuestionService {
     }
 
     @Transactional
-    public void addCategoriesToAssessment(Assessment assessment, List<CreateAssessmentQuestionDTO> dto) {
+    public void addCategoriesToAssessment(Assessment assessment, List<AssessmentQuestionDTO> dto) {
         if (dto == null || dto.isEmpty())
             throw new NullPointerException("Lista de questões não pode ser vazia.");
         List<AssessmentQuestion> questions;
-        final Integer[] totalScore = {0};
+        final double[] totalScore = {0};
         try {
             questions = dto.stream()
                     .flatMap(q -> q.categories().stream()

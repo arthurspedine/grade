@@ -5,11 +5,11 @@ import jakarta.validation.constraints.Positive;
 
 import java.util.List;
 
-public record CreateAssessmentQuestionDTO(
+public record AssessmentQuestionDTO(
         @NotNull
         @Positive
         Integer questionNumber,
         @NotNull
-        List<CreateCategoryDTO> categories
+        List<CategoryDTO> categories
 ) {
 }

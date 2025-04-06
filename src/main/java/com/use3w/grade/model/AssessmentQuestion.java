@@ -2,6 +2,7 @@ package com.use3w.grade.model;
 
 import jakarta.persistence.*;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,7 +21,7 @@ public class AssessmentQuestion {
     private String name;
 
     @Column(nullable = false)
-    private Integer score;
+    private Double score;
 
     @Column(nullable = false)
     private Integer questionNumber;
@@ -31,7 +32,7 @@ public class AssessmentQuestion {
     public AssessmentQuestion() {
     }
 
-    public AssessmentQuestion(Assessment assessment, String name, Integer score, Integer questionNumber) {
+    public AssessmentQuestion(Assessment assessment, String name, Double score, Integer questionNumber) {
         this.assessment = assessment;
         this.name = name;
         this.score = score;
@@ -50,7 +51,7 @@ public class AssessmentQuestion {
         this.name = name;
     }
 
-    public Integer getScore() {
+    public Double getScore() {
         return score;
     }
 
@@ -62,5 +63,17 @@ public class AssessmentQuestion {
 
     public Integer getQuestionNumber() {
         return questionNumber;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        AssessmentQuestion that = (AssessmentQuestion) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

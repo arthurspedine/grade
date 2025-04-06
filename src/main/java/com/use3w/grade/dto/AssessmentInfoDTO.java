@@ -4,6 +4,7 @@ import java.util.List;
 
 public record AssessmentInfoDTO(
         String name,
-        List<StudentDTO> students
+        Integer countEvaluatedStudents,
+        List<AssessmentStudentDTO> students
 ) {
 }

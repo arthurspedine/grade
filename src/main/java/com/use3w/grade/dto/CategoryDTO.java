@@ -2,10 +2,10 @@ package com.use3w.grade.dto;
 
 import jakarta.validation.constraints.NotNull;
 
-public record CreateCategoryDTO(
+public record CategoryDTO(
         @NotNull
         String name,
         @NotNull
-        Integer score
+        Double score
 ) {
 }

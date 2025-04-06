@@ -20,7 +20,9 @@ public class AssessmentStudent {
     @JoinColumn(name = "assessment_id")
     private Assessment assessment;
 
-    private String feedback;
+    private String rawFeedback;
+
+    private String finalFeedback;
 
     @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
     private Boolean finished;
@@ -48,8 +50,16 @@ public class AssessmentStudent {
         return student;
     }
 
-    public String getFeedback() {
-        return feedback;
+    public Assessment getAssessment() {
+        return assessment;
+    }
+
+    public String getRawFeedback() {
+        return rawFeedback;
+    }
+
+    public String getFinalFeedback() {
+        return finalFeedback;
     }
 
     public Boolean getFinished() {

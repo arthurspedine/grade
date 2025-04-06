@@ -9,6 +9,6 @@ public record AssessmentDetailsDTO(
         Set<AssessmentDetailsClassDTO> classes
 ) {
     public record AssessmentDetailsClassDTO(
-            UUID id, String name, Long countEvaluatedStudents, Integer countStudents
+            UUID id, String name, Integer countEvaluatedStudents, Integer countStudents
     ) {}
 }
