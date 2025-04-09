@@ -2,7 +2,6 @@ package com.use3w.grade.controller;
 
 import com.use3w.grade.dto.StudentEvaluationInfoDTO;
 import com.use3w.grade.model.UndeterminedUser;
-import com.use3w.grade.service.AssessmentService;
 import com.use3w.grade.service.AssessmentStudentService;
 import com.use3w.grade.service.UserService;
 import org.springframework.http.HttpHeaders;
@@ -18,7 +17,7 @@ public class AssessmentStudentController {
     private final UserService userService;
     private final AssessmentStudentService assessmentStudentService;
 
-    public AssessmentStudentController(UserService userService, AssessmentService assessmentService, AssessmentStudentService assessmentStudentService) {
+    public AssessmentStudentController(UserService userService, AssessmentStudentService assessmentStudentService) {
         this.userService = userService;
         this.assessmentStudentService = assessmentStudentService;
     }

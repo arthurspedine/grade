@@ -4,7 +4,7 @@ import java.util.List;
 
 public record StudentEvaluationInfoDTO(
         AssessmentStudentInfoDTO student,
-        List<AssessmentQuestionDTO> questions,
+        List<AssessmentEvaluationQuestionDTO> questions,
         List<AssessmentAnswerDTO> answers,
         String rawFeedback,
         String finalFeedback,

@@ -86,15 +86,15 @@ public class AssessmentStudentService {
             Map<Integer, List<AssessmentQuestion>> questionsByNumber = assessmentStudent.getAssessment().getQuestions().stream()
                     .collect(Collectors.groupingBy(AssessmentQuestion::getQuestionNumber));
 
-            List<AssessmentQuestionDTO> questions =  questionsByNumber.entrySet().stream()
+            List<AssessmentEvaluationQuestionDTO> questions =  questionsByNumber.entrySet().stream()
                     .map(entry -> {
                         Integer questionNumber = entry.getKey();
-                        List<CategoryDTO> categories = entry.getValue().stream()
-                                .map(question -> new CategoryDTO(
-                                        question.getName(), question.getScore()
+                        List<EvaluationCategoryDTO> categories = entry.getValue().stream()
+                                .map(question -> new EvaluationCategoryDTO(
+                                        question.getId(), question.getName(),
+                                        question.getScore()
                                 )).toList();
-
-                        return new AssessmentQuestionDTO(questionNumber, categories);
+                        return new AssessmentEvaluationQuestionDTO(questionNumber, categories);
                     })
                     .collect(Collectors.toList());
             return new StudentEvaluationInfoDTO(
