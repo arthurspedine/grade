@@ -7,6 +7,7 @@ import com.use3w.grade.repository.AssessmentStudentRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,9 +18,11 @@ import java.util.stream.Collectors;
 public class AssessmentStudentService {
 
     private final AssessmentStudentRepository repository;
+    private final AssessmentAnswerService assessmentAnswerService;
 
-    public AssessmentStudentService(AssessmentStudentRepository repository) {
+    public AssessmentStudentService(AssessmentStudentRepository repository, AssessmentAnswerService assessmentAnswerService) {
         this.repository = repository;
+        this.assessmentAnswerService = assessmentAnswerService;
     }
 
     @Transactional
@@ -55,7 +58,7 @@ public class AssessmentStudentService {
         Student student = assessmentStudent.getStudent();
 
         if (assessmentStudent.getFinished()) {
-            Set<AssessmentAnswer> assessmentAnswers = assessmentStudent.getAnswers();
+            Set<AssessmentAnswer> assessmentAnswers =  assessmentAnswerService.findAllByAssessmentStudentId(id);
             Map<Integer, List<AssessmentQuestion>> questionsByNumber = assessmentStudent.getAssessment().getQuestions().stream()
                     .collect(Collectors.groupingBy(AssessmentQuestion::getQuestionNumber));
 
@@ -64,9 +67,10 @@ public class AssessmentStudentService {
                         Integer questionNumber = entry.getKey();
                         List<CategoryAnswerDTO> categories = entry.getValue().stream()
                                 .map(question -> new CategoryAnswerDTO(
-                                        question.getName(), question.getScore(),
+                                        question.getId(), question.getName(),
+                                        question.getScore(),
                                         assessmentAnswers.stream()
-                                                .filter(answer -> answer.getQuestion().equals(question))
+                                                .filter(answer -> answer.getQuestionId().equals(question.getId()))
                                                 .findFirst()
                                                 .map(AssessmentAnswer::getScore).
                                                 orElse(0.0)
@@ -79,8 +83,8 @@ public class AssessmentStudentService {
                             assessmentStudent.getId(), student.getName(),
                             student.getRm()), null,
                     answers, assessmentStudent.getRawFeedback(),
-                            assessmentStudent.getFinalFeedback(), assessmentStudent.getTotalScore(),
-                            assessmentStudent.getFinished()
+                            assessmentStudent.getFinalFeedback(), assessmentStudent.getFinishedDate().toString(),
+                            assessmentStudent.getTotalScore(), assessmentStudent.getFinished()
             );
         } else {
             Map<Integer, List<AssessmentQuestion>> questionsByNumber = assessmentStudent.getAssessment().getQuestions().stream()
@@ -99,8 +103,23 @@ public class AssessmentStudentService {
                     .collect(Collectors.toList());
             return new StudentEvaluationInfoDTO(
                     new AssessmentStudentInfoDTO(assessmentStudent.getId(), student.getName(), student.getRm()),
-                    questions, null, null, null, null, assessmentStudent.getFinished()
+                    questions, null, null, null, null, null, assessmentStudent.getFinished()
             );
         }
+    }
+
+    @Transactional
+    public void finishStudentEvaluation(UndeterminedUser user, UUID id, AssessmentStudentFinishEvaluation dto, List<AssessmentAnswer> answers) {
+        AssessmentStudent assessmentStudent = repository.findByIdAndUser(user.email(), id);
+        final double[] totalScore = {0};
+        answers.forEach(answer -> totalScore[0] += answer.getScore());
+
+        // Setting new values in the fields
+        assessmentStudent.setRawFeedback(dto.rawFeedback());
+        assessmentStudent.setFinalFeedback(dto.finalFeedback());
+        assessmentStudent.setFinished(true);
+        assessmentStudent.setTotalScore(totalScore[0]);
+        assessmentStudent.setFinishedDate(LocalDate.now());
+        repository.save(assessmentStudent);
     }
 }

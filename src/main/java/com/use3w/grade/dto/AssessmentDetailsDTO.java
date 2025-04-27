@@ -6,6 +6,7 @@ import java.util.UUID;
 public record AssessmentDetailsDTO(
         UUID id,
         String name,
+        String assessmentDate,
         Set<AssessmentDetailsClassDTO> classes
 ) {
     public record AssessmentDetailsClassDTO(

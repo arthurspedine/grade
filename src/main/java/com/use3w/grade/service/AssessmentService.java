@@ -9,6 +9,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -33,7 +34,7 @@ public class AssessmentService {
         List<Class> classes = classService.findClassesByUserAndId(user, dto.classes().stream().map(CreateAssessmentDTO.AddClassToAssessmentDTO::id).toList());
         if (classes.isEmpty())
             throw new EntityNotFoundException("Nenhuma classe encontrada.");
-        Assessment assessment = new Assessment(dto.name(), user.email(), classes);
+        Assessment assessment = new Assessment(dto.name(), user.email(), classes, LocalDate.parse(dto.assessmentDate()));
         assessment = assessmentRepository.save(assessment);
         assessmentQuestionService.addCategoriesToAssessment(assessment, dto.questions());
         assessmentStudentService.addStudentsToAssessment(classes, assessment);
@@ -57,6 +58,7 @@ public class AssessmentService {
 
     private AssessmentDetailsDTO mapperToDTO(Assessment assessment) {
         return new AssessmentDetailsDTO(assessment.getId(), assessment.getName(),
+                assessment.getAssessmentDate().toString(),
                 assessment.getClasses().stream()
                         .map(c -> new AssessmentDetailsDTO.AssessmentDetailsClassDTO(
                                 c.getId(), c.getName(),

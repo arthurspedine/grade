@@ -8,6 +8,7 @@ public record StudentEvaluationInfoDTO(
         List<AssessmentAnswerDTO> answers,
         String rawFeedback,
         String finalFeedback,
+        String finishedDate,
         Double totalScore,
         Boolean evaluationCompleted
 ) {

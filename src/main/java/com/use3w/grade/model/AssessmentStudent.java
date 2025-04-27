@@ -2,7 +2,7 @@ package com.use3w.grade.model;
 
 import jakarta.persistence.*;
 
-import java.util.Set;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -27,10 +27,9 @@ public class AssessmentStudent {
     @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
     private Boolean finished;
 
-    private Double totalScore;
+    private LocalDate finishedDate;
 
-    @OneToMany
-    private Set<AssessmentAnswer> answers;
+    private Double totalScore;
 
     public AssessmentStudent() {
     }
@@ -58,19 +57,39 @@ public class AssessmentStudent {
         return rawFeedback;
     }
 
+    public void setRawFeedback(String rawFeedback) {
+        this.rawFeedback = rawFeedback;
+    }
+
     public String getFinalFeedback() {
         return finalFeedback;
+    }
+
+    public void setFinalFeedback(String finalFeedback) {
+        this.finalFeedback = finalFeedback;
     }
 
     public Boolean getFinished() {
         return finished;
     }
 
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+    }
+
     public Double getTotalScore() {
         return totalScore;
     }
 
-    public Set<AssessmentAnswer> getAnswers() {
-        return answers;
+    public void setTotalScore(Double totalScore) {
+        this.totalScore = totalScore;
+    }
+
+    public LocalDate getFinishedDate() {
+        return finishedDate;
+    }
+
+    public void setFinishedDate(LocalDate finishedDate) {
+        this.finishedDate = finishedDate;
     }
 }

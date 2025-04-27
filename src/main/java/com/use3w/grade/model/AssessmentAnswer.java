@@ -13,23 +13,32 @@ public class AssessmentAnswer {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @ManyToOne
-    private AssessmentStudent assessmentStudent;
+    @Column(name = "assessment_student_id")
+    private UUID assessmentStudentId;
 
-    @ManyToOne
-    private AssessmentQuestion question;
+    @Column(name = "question_id")
+    private UUID questionId;
 
     private Double score;
 
     public AssessmentAnswer() {
     }
 
+    public AssessmentAnswer(UUID questionId, Double score) {
+        this.questionId = questionId;
+        this.score = score;
+    }
+
     public UUID getId() {
         return id;
     }
 
-    public AssessmentQuestion getQuestion() {
-        return question;
+    public void setAssessmentStudentId(UUID assessmentStudentId) {
+        this.assessmentStudentId = assessmentStudentId;
+    }
+
+    public UUID getQuestionId() {
+        return questionId;
     }
 
     public Double getScore() {

@@ -2,6 +2,7 @@ package com.use3w.grade.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Entity
@@ -29,13 +30,17 @@ public class Assessment {
     @Column(nullable = false)
     private String createdBy;
 
+    @Column(nullable = false)
+    private LocalDate assessmentDate;
+
     public Assessment() {
     }
 
-    public Assessment(String name, String createdBy, List<Class> classes) {
+    public Assessment(String name, String createdBy, List<Class> classes, LocalDate assessmentDate) {
         this.name = name;
         this.createdBy = createdBy;
         this.classes.addAll(classes);
+        this.assessmentDate = assessmentDate;
     }
 
     @Override
@@ -69,4 +74,9 @@ public class Assessment {
     public Set<AssessmentQuestion> getQuestions() {
         return questions;
     }
+
+    public LocalDate getAssessmentDate() {
+        return assessmentDate;
+    }
+
 }

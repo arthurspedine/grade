@@ -11,7 +11,9 @@ public record CreateAssessmentDTO(
         @NotNull
         List<AddClassToAssessmentDTO> classes,
         @NotNull
-        List<AssessmentQuestionDTO> questions
+        List<AssessmentQuestionDTO> questions,
+        @NotNull
+        String assessmentDate
 ) {
 
     public record AddClassToAssessmentDTO(
