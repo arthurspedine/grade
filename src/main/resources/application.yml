@@ -1,15 +1,14 @@
-debug: true
 server:
   port: 3010
 
 okta:
   oauth2:
-    # Replace with the domain of your Auth0 tenant.
     issuer: https://dev-13t5bonxphxnh36q.us.auth0.com/
-    # Replace with the API Identifier for your Auth0 API.
     audience: https://grade.use3w.com
 
 spring:
+  profiles:
+    active: dev
   datasource:
     url: ${GRADE_DB_URL}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -18,10 +17,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-    show-sql: true
     properties:
       hibernate:
-        format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
   flyway:
     enabled: true
