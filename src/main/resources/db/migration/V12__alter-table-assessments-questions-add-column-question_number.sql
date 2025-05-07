@@ -1,0 +1,2 @@
+ALTER TABLE assessments_questions
+ADD COLUMN question_number INTEGER;

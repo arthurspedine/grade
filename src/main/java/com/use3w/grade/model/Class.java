@@ -3,6 +3,7 @@ package com.use3w.grade.model;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -34,6 +35,18 @@ public class Class {
     private Set<Assessment> assessments = new HashSet<>();
 
     public Class() {
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Class aClass = (Class) o;
+        return Objects.equals(id, aClass.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     public void disableClass() {

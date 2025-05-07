@@ -1,0 +1,1 @@
+RENAME TABLE assessments_category TO assessments_questions;
