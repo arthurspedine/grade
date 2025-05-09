@@ -67,6 +67,10 @@ public class ClassService {
         return classRepository.findClassesByIdInAndActiveIsTrueAndCreatedBy(ids, user.email());
     }
 
+    public Integer countTotalClasses(UndeterminedUser user) {
+        return classRepository.countByClassCreatedBy(user.email());
+    }
+
     private ClassDetailsDTO mapperDetailsToDTO(Class c) {
         return new ClassDetailsDTO(c.getId(), c.getName(),
                 c.getCategory(), c.getStatus());

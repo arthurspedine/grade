@@ -52,6 +52,10 @@ public class AssessmentService {
         return assessment;
     }
 
+    public Integer countTotalAssessments(UndeterminedUser user) {
+        return assessmentRepository.countByAssessmentCreatedBy(user.email());
+    }
+
     private List<Assessment> findAllByCreatedBy(String createdBy) {
         return assessmentRepository.findByCreatedBy(createdBy);
     }
