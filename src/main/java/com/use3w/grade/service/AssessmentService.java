@@ -1,9 +1,11 @@
 package com.use3w.grade.service;
 
-import com.use3w.grade.dto.*;
+import com.use3w.grade.dto.AssessmentDetailsDTO;
+import com.use3w.grade.dto.CreateAssessmentDTO;
 import com.use3w.grade.model.Assessment;
 import com.use3w.grade.model.Class;
 import com.use3w.grade.model.UndeterminedUser;
+import com.use3w.grade.projection.UpcomingAssessmentProjection;
 import com.use3w.grade.repository.AssessmentRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -54,6 +56,10 @@ public class AssessmentService {
 
     public Integer countTotalAssessments(UndeterminedUser user) {
         return assessmentRepository.countByAssessmentCreatedBy(user.email());
+    }
+
+    public List<UpcomingAssessmentProjection> findUpcomingAssessments(UndeterminedUser user) {
+        return assessmentRepository.findUpcomingAssessments(user.email(), LocalDate.now());
     }
 
     private List<Assessment> findAllByCreatedBy(String createdBy) {

@@ -24,4 +24,6 @@ public interface ClassRepository extends JpaRepository<Class, UUID> {
             AND c.active = true
             """)
     Integer countByClassCreatedBy(@Param("createdBy") String createdBy);
+
+    List<Class> findTop5ByCreatedByOrderByNameAsc(String createdBy);
 }

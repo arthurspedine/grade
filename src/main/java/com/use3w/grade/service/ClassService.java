@@ -19,9 +19,11 @@ import java.util.UUID;
 public class ClassService {
 
     private final ClassRepository classRepository;
+    private final AssessmentStudentService assessmentStudentService;
 
-    public ClassService(ClassRepository classRepository) {
+    public ClassService(ClassRepository classRepository, AssessmentStudentService assessmentStudentService) {
         this.classRepository = classRepository;
+        this.assessmentStudentService = assessmentStudentService;
     }
 
     public List<ClassDetailsDTO> findAllClassesByUndeterminedUser(UndeterminedUser user) {
@@ -69,6 +71,13 @@ public class ClassService {
 
     public Integer countTotalClasses(UndeterminedUser user) {
         return classRepository.countByClassCreatedBy(user.email());
+    }
+
+    public List<ClassPerformanceDTO> getClassesPerformance(UndeterminedUser user) {
+        List<Class> classes = classRepository.findTop5ByCreatedByOrderByNameAsc(user.email());
+        return classes.stream().map(
+                c -> assessmentStudentService.getClassPerformance(c.getId(), user.email())
+        ).toList();
     }
 
     private ClassDetailsDTO mapperDetailsToDTO(Class c) {
