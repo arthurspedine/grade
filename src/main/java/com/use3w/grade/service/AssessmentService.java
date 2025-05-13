@@ -5,7 +5,7 @@ import com.use3w.grade.dto.CreateAssessmentDTO;
 import com.use3w.grade.model.Assessment;
 import com.use3w.grade.model.Class;
 import com.use3w.grade.model.UndeterminedUser;
-import com.use3w.grade.projection.UpcomingAssessmentProjection;
+import com.use3w.grade.projection.PendingAssessmentProjection;
 import com.use3w.grade.repository.AssessmentRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -43,7 +43,7 @@ public class AssessmentService {
     }
 
     public List<AssessmentDetailsDTO> listAssessmentsDetailsByUser(UndeterminedUser user) {
-        List<Assessment> assessments = findAllByCreatedBy(user.email());
+        List<Assessment> assessments = assessmentRepository.findByCreatedByOrderByAssessmentDateAsc(user.email());
         return assessments.stream().map(this::mapperToDTO).toList();
     }
 
@@ -58,12 +58,8 @@ public class AssessmentService {
         return assessmentRepository.countByAssessmentCreatedBy(user.email());
     }
 
-    public List<UpcomingAssessmentProjection> findUpcomingAssessments(UndeterminedUser user) {
-        return assessmentRepository.findUpcomingAssessments(user.email(), LocalDate.now());
-    }
-
-    private List<Assessment> findAllByCreatedBy(String createdBy) {
-        return assessmentRepository.findByCreatedBy(createdBy);
+    public List<PendingAssessmentProjection> getPendingAssessments(UndeterminedUser user) {
+        return assessmentRepository.findPendingAssessments(user.email(), LocalDate.now());
     }
 
     private AssessmentDetailsDTO mapperToDTO(Assessment assessment) {

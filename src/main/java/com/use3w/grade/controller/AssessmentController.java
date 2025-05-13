@@ -5,7 +5,7 @@ import com.use3w.grade.dto.AssessmentInfoDTO;
 import com.use3w.grade.dto.CreateAssessmentDTO;
 import com.use3w.grade.model.Assessment;
 import com.use3w.grade.model.UndeterminedUser;
-import com.use3w.grade.projection.UpcomingAssessmentProjection;
+import com.use3w.grade.projection.PendingAssessmentProjection;
 import com.use3w.grade.service.AssessmentService;
 import com.use3w.grade.service.AssessmentStudentService;
 import com.use3w.grade.service.UserService;
@@ -60,10 +60,10 @@ public class AssessmentController {
         return ResponseEntity.ok(assessmentStudentService.geAssessmentDetailsDTO(assessment));
     }
 
-    @GetMapping("/upcoming")
-    public ResponseEntity<List<UpcomingAssessmentProjection>> getUpcomingAssessments(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+    @GetMapping("/pending")
+    public ResponseEntity<List<PendingAssessmentProjection>> getPendingAssessments(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        return ResponseEntity.ok(assessmentService.findUpcomingAssessments(user));
+        return ResponseEntity.ok(assessmentService.getPendingAssessments(user));
     }
 
 }
