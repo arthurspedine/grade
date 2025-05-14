@@ -54,10 +54,9 @@ public class ClassController {
             @RequestParam("name") String name,
             @RequestParam("category") ECategory category,
             @RequestParam("file") MultipartFile file) {
-        CreateClassDTO dto = new CreateClassDTO(name, category, file);
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        Class newClass = classService.createClassByUser(user, dto);
-        studentService.addStudentsToClass(newClass, dto.file());
+        Class newClass = classService.createClassByUser(name, user.email(), category);
+        studentService.addStudentsToClass(newClass, file);
         return ResponseEntity.status(201).build();
     }
 
@@ -69,9 +68,9 @@ public class ClassController {
             @RequestParam(value = "category", required = false) ECategory category,
             @RequestParam(value = "file", required = false) MultipartFile file
     ) {
-        EditClassDTO dto = new EditClassDTO(id, name, category);
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        Class editedClass = classService.editClass(user, dto);
+        Class editedClass = new Class(id, name, user.email(), category);
+        editedClass = classService.editClass(user, editedClass);
         if (file != null)
             studentService.editStudentsFromClass(editedClass, file);
         return ResponseEntity.status(204).build();

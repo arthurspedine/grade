@@ -32,20 +32,21 @@ public class ClassService {
     }
 
     @Transactional
-    public Class createClassByUser(UndeterminedUser user, CreateClassDTO dto) {
-        Class newClass = new Class();
-        newClass.setName(dto.name());
-        newClass.setCreatedBy(user.email());
-        newClass.setCategory(dto.category());
+    public Class createClassByUser(String name, String createdBy, ECategory category) {
+        Class newClass = new Class(name, createdBy, category);
         return classRepository.save(newClass);
     }
 
 
     @Transactional
-    public Class editClass(UndeterminedUser user, EditClassDTO dto) {
-        Class requestedClass = getClass(user, dto.id());
-        String newName = !Objects.isNull(dto.name()) && !dto.name().isBlank() ? dto.name() : requestedClass.getName();
-        ECategory newCategory = dto.category() != null ? dto.category() : requestedClass.getCategory();
+    public Class editClass(UndeterminedUser user, Class editedClass) {
+        Class requestedClass = getClass(user, editedClass.getId());
+
+        String editedName = editedClass.getName();
+        String newName = !Objects.isNull(editedName) && !editedName.isBlank() ? editedName : requestedClass.getName();
+
+        ECategory newCategory = editedClass.getCategory() != null ? editedClass.getCategory() : requestedClass.getCategory();
+
         requestedClass.setName(newName);
         requestedClass.setCategory(newCategory);
         return classRepository.save(requestedClass);
