@@ -50,7 +50,8 @@ public interface AssessmentRepository extends JpaRepository<Assessment, UUID> {
         GROUP BY
             a.id, a.name, a.assessment_date
         ORDER BY
-            a.assessment_date ASC
+            a.assessment_date ASC,
+            a.name
         LIMIT 3
         """, nativeQuery = true)
     List<PendingAssessmentProjection> findPendingAssessments(@Param("createdBy") String createdBy, @Param("today") LocalDate today);

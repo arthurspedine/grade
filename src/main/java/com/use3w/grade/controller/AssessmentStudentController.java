@@ -37,7 +37,7 @@ public class AssessmentStudentController {
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
             @PathVariable("id") UUID id) {
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        return ResponseEntity.ok(assessmentStudentService.getStudentEvaluationInfoDTO(user, id));
+        return ResponseEntity.ok(assessmentStudentService.getStudentEvaluationInfoDTO(user.email(), id));
     }
 
     @PostMapping("/student/{id}/finish")
@@ -54,7 +54,7 @@ public class AssessmentStudentController {
                         .map(CategoryAnswerDTO::getAs)
                 ).toList();
         answers = assessmentAnswerService.saveAssessmentAnswers(id, answers);
-        assessmentStudentService.finishStudentEvaluation(user, id, dto, answers);
+        assessmentStudentService.finishStudentEvaluation(user.email(), id, dto, answers);
         return ResponseEntity.status(201).build();
     }
 

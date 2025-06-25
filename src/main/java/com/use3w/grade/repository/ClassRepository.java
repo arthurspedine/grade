@@ -1,5 +1,6 @@
 package com.use3w.grade.repository;
 
+import com.use3w.grade.dto.ClassPerformanceDTO;
 import com.use3w.grade.model.Class;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,7 +11,7 @@ import java.util.UUID;
 
 public interface ClassRepository extends JpaRepository<Class, UUID> {
 
-    List<Class> findClassesByCreatedByAndActiveIsTrue(String createdBy);
+    List<Class> findClassesByCreatedByAndActiveIsTrueOrderByNameAsc(String createdBy);
 
     Class findByIdAndCreatedByAndActiveIsTrue(UUID id, String createdBy);
 
@@ -25,5 +26,22 @@ public interface ClassRepository extends JpaRepository<Class, UUID> {
             """)
     Integer countByClassCreatedBy(@Param("createdBy") String createdBy);
 
-    List<Class> findTop5ByCreatedByOrderByNameAsc(String createdBy);
+    @Query("""
+        SELECT new com.use3w.grade.dto.ClassPerformanceDTO(
+            c.id,
+            c.name,
+            COALESCE(AVG(CASE WHEN aSt.finished = true THEN aSt.totalScore ELSE NULL END), 0.0)
+        )
+        FROM Class c
+        JOIN c.students s
+        LEFT JOIN s.assessments aSt
+        WHERE c.createdBy = :createdBy
+        GROUP BY c.id
+        ORDER BY
+            COALESCE(AVG(CASE WHEN aSt.finished = true THEN aSt.totalScore ELSE NULL END), 0.0) DESC,
+            c.name
+        LIMIT 5
+""")
+    List<ClassPerformanceDTO> getClassesPerformance(@Param("createdBy") String createdBy);
+
 }

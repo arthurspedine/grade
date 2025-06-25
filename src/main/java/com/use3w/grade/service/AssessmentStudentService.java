@@ -2,7 +2,6 @@ package com.use3w.grade.service;
 
 import com.use3w.grade.dto.*;
 import com.use3w.grade.model.*;
-import com.use3w.grade.model.Class;
 import com.use3w.grade.repository.AssessmentStudentRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -25,9 +24,8 @@ public class AssessmentStudentService {
         this.assessmentAnswerService = assessmentAnswerService;
     }
 
-    @Transactional
-    public void addStudentsToAssessment(List<Class> classes, Assessment assessment) {
-        Set<AssessmentStudent> studentsToAdd = classes.stream()
+    public void addStudentsToAssessment(Assessment assessment) {
+        Set<AssessmentStudent> studentsToAdd = assessment.getClasses().stream()
                 .flatMap(c -> c.getStudents().stream()
                         .map(student -> new AssessmentStudent(student, assessment)))
                 .collect(Collectors.toSet());
@@ -53,8 +51,8 @@ public class AssessmentStudentService {
         return new AssessmentInfoDTO(assessment.getName(), countEvaluatedStudents[0], students);
     }
 
-    public StudentEvaluationInfoDTO getStudentEvaluationInfoDTO(UndeterminedUser user, UUID id) {
-        AssessmentStudent assessmentStudent = repository.findByIdAndUser(user.email(), id);
+    public StudentEvaluationInfoDTO getStudentEvaluationInfoDTO(String createdBy, UUID id) {
+        AssessmentStudent assessmentStudent = repository.findByIdAndUser(createdBy, id);
         Student student = assessmentStudent.getStudent();
 
         if (assessmentStudent.getFinished()) {
@@ -109,8 +107,8 @@ public class AssessmentStudentService {
     }
 
     @Transactional
-    public void finishStudentEvaluation(UndeterminedUser user, UUID id, AssessmentStudentFinishEvaluation dto, List<AssessmentAnswer> answers) {
-        AssessmentStudent assessmentStudent = repository.findByIdAndUser(user.email(), id);
+    public void finishStudentEvaluation(String createdBy, UUID id, AssessmentStudentFinishEvaluation dto, List<AssessmentAnswer> answers) {
+        AssessmentStudent assessmentStudent = repository.findByIdAndUser(createdBy, id);
         final double[] totalScore = {0};
         answers.forEach(answer -> totalScore[0] += answer.getScore());
 
@@ -121,9 +119,5 @@ public class AssessmentStudentService {
         assessmentStudent.setTotalScore(totalScore[0]);
         assessmentStudent.setFinishedDate(LocalDate.now());
         repository.save(assessmentStudent);
-    }
-
-    public ClassPerformanceDTO getClassPerformance(UUID classId, String createdBy) {
-        return repository.getClassPerformance(classId, createdBy);
     }
 }

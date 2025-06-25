@@ -32,9 +32,9 @@ public class DashboardController {
     @GetMapping("/stats")
     public ResponseEntity<?> getStats(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        Integer totalStudents = studentService.countTotalStudents(user);
-        Integer totalClasses = classService.countTotalClasses(user);
-        Integer totalAssessments = assessmentService.countTotalAssessments(user);
+        Integer totalStudents = studentService.countTotalStudents(user.email());
+        Integer totalClasses = classService.countTotalClasses(user.email());
+        Integer totalAssessments = assessmentService.countTotalAssessments(user.email());
         return ResponseEntity.ok(new DashboardStatsDTO(totalStudents, totalClasses, totalAssessments));
     }
 }

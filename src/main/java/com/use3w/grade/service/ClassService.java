@@ -1,10 +1,12 @@
 package com.use3w.grade.service;
 
-import com.use3w.grade.dto.*;
+import com.use3w.grade.dto.ClassDetailsDTO;
+import com.use3w.grade.dto.ClassInfoDTO;
+import com.use3w.grade.dto.ClassPerformanceDTO;
+import com.use3w.grade.dto.StudentDTO;
 import com.use3w.grade.model.Class;
 import com.use3w.grade.model.ECategory;
 import com.use3w.grade.model.Student;
-import com.use3w.grade.model.UndeterminedUser;
 import com.use3w.grade.repository.ClassRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -19,15 +21,13 @@ import java.util.UUID;
 public class ClassService {
 
     private final ClassRepository classRepository;
-    private final AssessmentStudentService assessmentStudentService;
 
-    public ClassService(ClassRepository classRepository, AssessmentStudentService assessmentStudentService) {
+    public ClassService(ClassRepository classRepository) {
         this.classRepository = classRepository;
-        this.assessmentStudentService = assessmentStudentService;
     }
 
-    public List<ClassDetailsDTO> findAllClassesByUndeterminedUser(UndeterminedUser user) {
-        List<Class> classList = getAllClassesByUndeterminedUser(user);
+    public List<ClassDetailsDTO> findAllClassesByUndeterminedUser(String createdBy) {
+        List<Class> classList = getAllClassesByUndeterminedUser(createdBy);
         return classList.stream().map(this::mapperDetailsToDTO).toList();
     }
 
@@ -39,8 +39,8 @@ public class ClassService {
 
 
     @Transactional
-    public Class editClass(UndeterminedUser user, Class editedClass) {
-        Class requestedClass = getClass(user, editedClass.getId());
+    public Class editClass(String createdBy, Class editedClass) {
+        Class requestedClass = getClass(createdBy, editedClass.getId());
 
         String editedName = editedClass.getName();
         String newName = !Objects.isNull(editedName) && !editedName.isBlank() ? editedName : requestedClass.getName();
@@ -52,33 +52,30 @@ public class ClassService {
         return classRepository.save(requestedClass);
     }
 
-    public void deleteClass(UndeterminedUser user, UUID id) {
-        Class requestedClass = getClass(user, id);
+    public void deleteClass(String createdBy, UUID id) {
+        Class requestedClass = getClass(createdBy, id);
         requestedClass.disableClass();
         classRepository.save(requestedClass);
     }
 
-    public ClassInfoDTO getClassInfoByUndeterminedUserAndId(UndeterminedUser user, UUID id) {
-        Class requestedClass = getClass(user, id);
+    public ClassInfoDTO getClassInfoByUndeterminedUserAndId(String createdBy, UUID id) {
+        Class requestedClass = getClass(createdBy, id);
         return new ClassInfoDTO(mapperDetailsToDTO(requestedClass),
                 requestedClass.getStudents().stream()
                         .sorted(Comparator.comparing(Student::getName))
                         .map(s -> new StudentDTO(s.getRm(), s.getName())).toList());
     }
 
-    public List<Class> findClassesByUserAndId(UndeterminedUser user, List<UUID> ids) {
-        return classRepository.findClassesByIdInAndActiveIsTrueAndCreatedBy(ids, user.email());
+    public List<Class> findClassesByUserAndId(String createdBy, List<UUID> ids) {
+        return classRepository.findClassesByIdInAndActiveIsTrueAndCreatedBy(ids, createdBy);
     }
 
-    public Integer countTotalClasses(UndeterminedUser user) {
-        return classRepository.countByClassCreatedBy(user.email());
+    public Integer countTotalClasses(String createdBy) {
+        return classRepository.countByClassCreatedBy(createdBy);
     }
 
-    public List<ClassPerformanceDTO> getClassesPerformance(UndeterminedUser user) {
-        List<Class> classes = classRepository.findTop5ByCreatedByOrderByNameAsc(user.email());
-        return classes.stream().map(
-                c -> assessmentStudentService.getClassPerformance(c.getId(), user.email())
-        ).toList();
+    public List<ClassPerformanceDTO> getClassesPerformance(String createdBy) {
+        return classRepository.getClassesPerformance(createdBy);
     }
 
     private ClassDetailsDTO mapperDetailsToDTO(Class c) {
@@ -86,14 +83,14 @@ public class ClassService {
                 c.getCategory(), c.getStatus());
     }
 
-    private Class getClass(UndeterminedUser user, UUID id) {
-        Class requestedClass = classRepository.findByIdAndCreatedByAndActiveIsTrue(id, user.email());
+    private Class getClass(String createdBy, UUID id) {
+        Class requestedClass = classRepository.findByIdAndCreatedByAndActiveIsTrue(id, createdBy);
         if (requestedClass == null)
             throw new EntityNotFoundException("Class not found.");
         return requestedClass;
     }
 
-    private List<Class> getAllClassesByUndeterminedUser(UndeterminedUser user) {
-        return classRepository.findClassesByCreatedByAndActiveIsTrue(user.email());
+    private List<Class> getAllClassesByUndeterminedUser(String createdBy) {
+        return classRepository.findClassesByCreatedByAndActiveIsTrueOrderByNameAsc(createdBy);
     }
 }

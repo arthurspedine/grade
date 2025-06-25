@@ -4,7 +4,6 @@ import com.use3w.grade.dto.AssessmentDetailsDTO;
 import com.use3w.grade.dto.CreateAssessmentDTO;
 import com.use3w.grade.model.Assessment;
 import com.use3w.grade.model.Class;
-import com.use3w.grade.model.UndeterminedUser;
 import com.use3w.grade.projection.PendingAssessmentProjection;
 import com.use3w.grade.repository.AssessmentRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,45 +20,41 @@ public class AssessmentService {
 
     private final ClassService classService;
     private final AssessmentRepository assessmentRepository;
-    private final AssessmentQuestionService assessmentQuestionService;
     private final AssessmentStudentService assessmentStudentService;
 
-    public AssessmentService(ClassService classService, AssessmentRepository assessmentRepository, AssessmentQuestionService assessmentQuestionService, AssessmentStudentService assessmentStudentService) {
+    public AssessmentService(ClassService classService, AssessmentRepository assessmentRepository, AssessmentStudentService assessmentStudentService) {
         this.classService = classService;
         this.assessmentRepository = assessmentRepository;
-        this.assessmentQuestionService = assessmentQuestionService;
         this.assessmentStudentService = assessmentStudentService;
     }
 
     @Transactional
-    public void createAssessmentByUser(CreateAssessmentDTO dto, UndeterminedUser user) {
-        List<Class> classes = classService.findClassesByUserAndId(user, dto.classes().stream().map(CreateAssessmentDTO.AddClassToAssessmentDTO::id).toList());
+    public Assessment createAssessmentByUser(CreateAssessmentDTO dto, String createdBy) {
+        List<Class> classes = classService.findClassesByUserAndId(createdBy, dto.classes().stream().map(CreateAssessmentDTO.AddClassToAssessmentDTO::id).toList());
         if (classes.isEmpty())
             throw new EntityNotFoundException("Nenhuma classe encontrada.");
-        Assessment assessment = new Assessment(dto.name(), user.email(), classes, LocalDate.parse(dto.assessmentDate()));
-        assessment = assessmentRepository.save(assessment);
-        assessmentQuestionService.addCategoriesToAssessment(assessment, dto.questions());
-        assessmentStudentService.addStudentsToAssessment(classes, assessment);
+        Assessment assessment = new Assessment(dto.name(), createdBy, classes, LocalDate.parse(dto.assessmentDate()));
+        return assessmentRepository.save(assessment);
     }
 
-    public List<AssessmentDetailsDTO> listAssessmentsDetailsByUser(UndeterminedUser user) {
-        List<Assessment> assessments = assessmentRepository.findByCreatedByOrderByAssessmentDateAsc(user.email());
+    public List<AssessmentDetailsDTO> listAssessmentsDetailsByUser(String createdBy) {
+        List<Assessment> assessments = assessmentRepository.findByCreatedByOrderByAssessmentDateAsc(createdBy);
         return assessments.stream().map(this::mapperToDTO).toList();
     }
 
-    public Assessment getAssessmentByUserAndAssessmentIdAndClassId(UndeterminedUser user, UUID id, UUID classId) {
-        Assessment assessment = assessmentRepository.getAssessmentByEmailIdAndClassId(user.email(), id, classId);
+    public Assessment getAssessmentByUserAndAssessmentIdAndClassId(String createdBy, UUID id, UUID classId) {
+        Assessment assessment = assessmentRepository.getAssessmentByEmailIdAndClassId(createdBy, id, classId);
         if (assessment == null)
             throw new EntityNotFoundException("Avaliação não encontrada.");
         return assessment;
     }
 
-    public Integer countTotalAssessments(UndeterminedUser user) {
-        return assessmentRepository.countByAssessmentCreatedBy(user.email());
+    public Integer countTotalAssessments(String createdBy) {
+        return assessmentRepository.countByAssessmentCreatedBy(createdBy);
     }
 
-    public List<PendingAssessmentProjection> getPendingAssessments(UndeterminedUser user) {
-        return assessmentRepository.findPendingAssessments(user.email(), LocalDate.now());
+    public List<PendingAssessmentProjection> getPendingAssessments(String createdBy) {
+        return assessmentRepository.findPendingAssessments(createdBy, LocalDate.now());
     }
 
     private AssessmentDetailsDTO mapperToDTO(Assessment assessment) {

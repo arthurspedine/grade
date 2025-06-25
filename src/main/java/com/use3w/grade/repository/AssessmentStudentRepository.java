@@ -1,6 +1,5 @@
 package com.use3w.grade.repository;
 
-import com.use3w.grade.dto.ClassPerformanceDTO;
 import com.use3w.grade.model.Assessment;
 import com.use3w.grade.model.AssessmentStudent;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,18 +27,4 @@ public interface AssessmentStudentRepository extends JpaRepository<AssessmentStu
             """)
     AssessmentStudent findByIdAndUser(@Param("createdBy") String createdBy, @Param("id") UUID id);
 
-    @Query("""
-                SELECT new com.use3w.grade.dto.ClassPerformanceDTO(
-                    c.id,
-                    c.name,
-                    AVG(s.totalScore)
-                )
-                FROM AssessmentStudent s
-                JOIN s.assessment a
-                JOIN a.classes c
-                WHERE a.createdBy = :createdBy
-                AND c.id = :classId
-                GROUP BY c.id
-            """)
-    ClassPerformanceDTO getClassPerformance(@Param("classId") UUID classId, @Param("createdBy") String createdBy);
 }
