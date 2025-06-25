@@ -5,7 +5,6 @@ import com.use3w.grade.model.Student;
 import com.use3w.grade.projection.StudentClassProjection;
 import com.use3w.grade.repository.StudentRepository;
 import com.use3w.grade.util.csv.CsvReader;
-import com.use3w.grade.util.csv.StudentCsvReader;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,7 @@ public class StudentService {
     private final StudentRepository repository;
     private final CsvReader<Student> reader;
 
-    public StudentService(StudentRepository repository, StudentCsvReader reader) {
+    public StudentService(StudentRepository repository, CsvReader<Student> reader) {
         this.repository = repository;
         this.reader = reader;
     }
