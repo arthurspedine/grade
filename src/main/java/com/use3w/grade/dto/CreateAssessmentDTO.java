@@ -1,12 +1,19 @@
 package com.use3w.grade.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 import java.util.UUID;
 
 public record CreateAssessmentDTO(
+        @NotNull
         String name,
+        @NotNull
         List<AddClassToAssessmentDTO> classes,
-        List<CreateAssessmentCategoryDTO> categories
+        @NotNull
+        List<AssessmentQuestionDTO> questions,
+        @NotNull
+        String assessmentDate
 ) {
 
     public record AddClassToAssessmentDTO(

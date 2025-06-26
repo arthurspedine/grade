@@ -1,12 +1,9 @@
 package com.use3w.grade.model;
 
 import jakarta.persistence.*;
-import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.util.*;
 
 @Entity
 @Table(name = "assessments")
@@ -28,18 +25,34 @@ public class Assessment {
     private Set<Class> classes = new HashSet<>();
 
     @OneToMany(mappedBy = "assessment")
-    private Set<AssessmentCategory> categories = new HashSet<>();
+    private Set<AssessmentQuestion> questions = new HashSet<>();
 
     @Column(nullable = false)
     private String createdBy;
 
+    @Column(nullable = false)
+    private LocalDate assessmentDate;
+
     public Assessment() {
     }
 
-    public Assessment(String name, String createdBy, List<Class> classes) {
+    public Assessment(String name, String createdBy, List<Class> classes, LocalDate assessmentDate) {
         this.name = name;
         this.createdBy = createdBy;
         this.classes.addAll(classes);
+        this.assessmentDate = assessmentDate;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Assessment that = (Assessment) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     public UUID getId() {
@@ -58,15 +71,12 @@ public class Assessment {
         return classes;
     }
 
-    public Set<AssessmentCategory> getCategories() {
-        return categories;
+    public Set<AssessmentQuestion> getQuestions() {
+        return questions;
     }
 
-    public String getCreatedBy() {
-        return createdBy;
+    public LocalDate getAssessmentDate() {
+        return assessmentDate;
     }
 
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
 }

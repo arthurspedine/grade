@@ -1,16 +1,13 @@
 package com.use3w.grade.controller;
 
-import com.use3w.grade.dto.ClassDetailsDTO;
-import com.use3w.grade.dto.ClassInfoDTO;
-import com.use3w.grade.dto.CreateClassDTO;
-import com.use3w.grade.dto.EditClassDTO;
+import com.use3w.grade.dto.*;
 import com.use3w.grade.model.Class;
 import com.use3w.grade.model.ECategory;
 import com.use3w.grade.model.UndeterminedUser;
 import com.use3w.grade.service.ClassService;
 import com.use3w.grade.service.StudentService;
 import com.use3w.grade.service.UserService;
-import jakarta.validation.Valid;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +36,7 @@ public class ClassController {
     @GetMapping
     public ResponseEntity<List<ClassDetailsDTO>> getAllClasses(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        return ResponseEntity.ok(classService.findAllClassesByUndeterminedUser(user));
+        return ResponseEntity.ok(classService.findAllClassesByUndeterminedUser(user.email()));
     }
 
     @GetMapping("/{id}")
@@ -47,19 +44,19 @@ public class ClassController {
             @PathVariable("id") UUID id,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        return ResponseEntity.ok(classService.getClassInfoByUndeterminedUserAndId(user, id));
+        return ResponseEntity.ok(classService.getClassInfoByUndeterminedUserAndId(user.email(), id));
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Transactional
     public ResponseEntity<Void> createClass(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
             @RequestParam("name") String name,
             @RequestParam("category") ECategory category,
             @RequestParam("file") MultipartFile file) {
-        CreateClassDTO dto = new CreateClassDTO(name, category, file);
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        Class newClass = classService.createClassByUser(user, dto);
-        studentService.addStudentsToClass(newClass, dto.file());
+        Class newClass = classService.createClassByUser(name, user.email(), category);
+        studentService.addStudentsToClass(newClass, file);
         return ResponseEntity.status(201).build();
     }
 
@@ -71,9 +68,9 @@ public class ClassController {
             @RequestParam(value = "category", required = false) ECategory category,
             @RequestParam(value = "file", required = false) MultipartFile file
     ) {
-        EditClassDTO dto = new EditClassDTO(id,name, category);
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        Class editedClass = classService.editClass(user, dto);
+        Class editedClass = new Class(id, name, user.email(), category);
+        editedClass = classService.editClass(user.email(), editedClass);
         if (file != null)
             studentService.editStudentsFromClass(editedClass, file);
         return ResponseEntity.status(204).build();
@@ -85,8 +82,14 @@ public class ClassController {
             @RequestParam("id") UUID id
     ) {
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        classService.deleteClass(user, id);
+        classService.deleteClass(user.email(), id);
         return ResponseEntity.status(204).build();
+    }
+
+    @GetMapping("/performance")
+    public ResponseEntity<List<ClassPerformanceDTO>> getClassesPerformance(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+        UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
+        return ResponseEntity.ok(classService.getClassesPerformance(user.email()));
     }
 
 }

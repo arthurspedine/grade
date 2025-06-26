@@ -3,7 +3,7 @@ package com.use3w.grade.model;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
-import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -37,6 +37,32 @@ public class Class {
     public Class() {
     }
 
+    public Class(String name, String createdBy, ECategory category) {
+        this.name = name;
+        this.createdBy = createdBy;
+        this.category = category;
+        this.active = true;
+    }
+
+    public Class(UUID id, String name, String createdBy, ECategory category) {
+        this.id = id;
+        this.name = name;
+        this.createdBy = createdBy;
+        this.category = category;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Class aClass = (Class) o;
+        return Objects.equals(id, aClass.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
     public void disableClass() {
         this.active = false;
     }
@@ -59,10 +85,6 @@ public class Class {
 
     public String getCreatedBy() {
         return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
     }
 
     public Boolean getActive() {
