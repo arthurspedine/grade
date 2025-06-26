@@ -42,7 +42,6 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'junit:junit:4.13.2'
-    runtimeOnly 'org.springframework.boot:spring-boot-docker-compose'
 }
 
 task downloadNewrelic(type: Download) {
