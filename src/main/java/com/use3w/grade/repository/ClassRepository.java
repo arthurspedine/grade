@@ -16,4 +16,14 @@ public interface ClassRepository extends JpaRepository<Class, UUID> {
 
     @Query("SELECT c FROM Class c WHERE c.id IN :ids AND c.active = TRUE AND c.createdBy = :createdBy")
     List<Class> findClassesByIdInAndActiveIsTrueAndCreatedBy(@Param("ids") List<UUID> ids, @Param("createdBy") String createdBy);
+
+    @Query("""
+            SELECT COUNT(c)
+            FROM Class c
+            WHERE c.createdBy = :createdBy
+            AND c.active = true
+            """)
+    Integer countByClassCreatedBy(@Param("createdBy") String createdBy);
+
+    List<Class> findTop5ByCreatedByOrderByNameAsc(String createdBy);
 }

@@ -2,6 +2,7 @@ package com.use3w.grade.service;
 
 import com.use3w.grade.model.Class;
 import com.use3w.grade.model.Student;
+import com.use3w.grade.model.UndeterminedUser;
 import com.use3w.grade.projection.StudentClassProjection;
 import com.use3w.grade.repository.StudentRepository;
 import com.use3w.grade.util.csv.CsvReader;
@@ -87,6 +88,10 @@ public class StudentService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Integer countTotalStudents(UndeterminedUser user) {
+        return repository.countByClassCreatedBy(user.email());
     }
 
     private void validateStudents(Class validateClass, Map<String, Student> csvStudentsMap) {

@@ -35,7 +35,6 @@ public class AssessmentQuestionService {
                             }))
                     .toList();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
             throw new NullPointerException("Lista de categorias esta vazia ou algum dado invalido. Por favor, validar os dados enviados.");
         }
         assessment.getQuestions().addAll(questions);

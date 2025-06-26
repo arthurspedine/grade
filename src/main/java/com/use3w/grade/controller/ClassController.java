@@ -1,9 +1,6 @@
 package com.use3w.grade.controller;
 
-import com.use3w.grade.dto.ClassDetailsDTO;
-import com.use3w.grade.dto.ClassInfoDTO;
-import com.use3w.grade.dto.CreateClassDTO;
-import com.use3w.grade.dto.EditClassDTO;
+import com.use3w.grade.dto.*;
 import com.use3w.grade.model.Class;
 import com.use3w.grade.model.ECategory;
 import com.use3w.grade.model.UndeterminedUser;
@@ -72,7 +69,7 @@ public class ClassController {
             @RequestParam(value = "category", required = false) ECategory category,
             @RequestParam(value = "file", required = false) MultipartFile file
     ) {
-        EditClassDTO dto = new EditClassDTO(id,name, category);
+        EditClassDTO dto = new EditClassDTO(id, name, category);
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
         Class editedClass = classService.editClass(user, dto);
         if (file != null)
@@ -88,6 +85,12 @@ public class ClassController {
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
         classService.deleteClass(user, id);
         return ResponseEntity.status(204).build();
+    }
+
+    @GetMapping("/performance")
+    public ResponseEntity<List<ClassPerformanceDTO>> getClassesPerformance(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+        UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
+        return ResponseEntity.ok(classService.getClassesPerformance(user));
     }
 
 }

@@ -122,4 +122,8 @@ public class AssessmentStudentService {
         assessmentStudent.setFinishedDate(LocalDate.now());
         repository.save(assessmentStudent);
     }
+
+    public ClassPerformanceDTO getClassPerformance(UUID classId, String createdBy) {
+        return repository.getClassPerformance(classId, createdBy);
+    }
 }
