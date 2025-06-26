@@ -18,9 +18,10 @@ public interface StudentRepository extends JpaRepository<Student, String> {
                 JOIN s.classes c
                 WHERE c.createdBy = :createdBy
                 AND c.active = true
+                AND c.name != :className
                 AND s IN :students
             """)
-    List<StudentClassProjection> findByClassCreatedBy(@Param("createdBy") String createdBy, @Param("students") List<Student> students);
+    List<StudentClassProjection> findByClassCreatedBy(@Param("createdBy") String createdBy, @Param("students") List<Student> students, @Param("className") String className);
 
     @Query("""
                 SELECT COUNT(s)

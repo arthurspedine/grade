@@ -18,7 +18,8 @@ public interface AssessmentStudentRepository extends JpaRepository<AssessmentStu
             where ac.class_id = :classId and aSt.finished = true and aSt.assessment_id = :assessmentId""", nativeQuery = true)
     Integer countEvaluatedStudents(@Param("classId") UUID classId, @Param("assessmentId") UUID assessmentId);
 
-    List<AssessmentStudent> findByAssessment(Assessment assessment);
+    @Query("select a from AssessmentStudent a where a.assessment = ?1 order by a.student.name ASC")
+    List<AssessmentStudent> findByAssessmentOrderByStudent(Assessment assessment);
 
     @Query(value = """
                 select aSt from AssessmentStudent aSt

@@ -37,7 +37,7 @@ public class AssessmentStudentService {
     }
 
     public AssessmentInfoDTO geAssessmentDetailsDTO(Assessment assessment) {
-        List<AssessmentStudent> assessmentStudents = repository.findByAssessment(assessment);
+        List<AssessmentStudent> assessmentStudents = repository.findByAssessmentOrderByStudent(assessment);
         final int[] countEvaluatedStudents = {0};
         List<AssessmentStudentDTO> students = assessmentStudents.stream().map(assessmentStudent -> {
             boolean finished = assessmentStudent.getFinished();
