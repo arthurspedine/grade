@@ -37,6 +37,20 @@ public class Class {
     public Class() {
     }
 
+    public Class(String name, String createdBy, ECategory category) {
+        this.name = name;
+        this.createdBy = createdBy;
+        this.category = category;
+        this.active = true;
+    }
+
+    public Class(UUID id, String name, String createdBy, ECategory category) {
+        this.id = id;
+        this.name = name;
+        this.createdBy = createdBy;
+        this.category = category;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -71,10 +85,6 @@ public class Class {
 
     public String getCreatedBy() {
         return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
     }
 
     public Boolean getActive() {

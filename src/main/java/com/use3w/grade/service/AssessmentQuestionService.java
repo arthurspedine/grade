@@ -1,11 +1,9 @@
 package com.use3w.grade.service;
 
 import com.use3w.grade.dto.AssessmentQuestionDTO;
-
 import com.use3w.grade.model.Assessment;
 import com.use3w.grade.model.AssessmentQuestion;
 import com.use3w.grade.repository.AssessmentQuestionRepository;
-import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +18,6 @@ public class AssessmentQuestionService {
         this.assessmentQuestionRepository = assessmentQuestionRepository;
     }
 
-    @Transactional
     public void addCategoriesToAssessment(Assessment assessment, List<AssessmentQuestionDTO> dto) {
         if (dto == null || dto.isEmpty())
             throw new NullPointerException("Lista de questões não pode ser vazia.");

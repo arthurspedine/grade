@@ -6,9 +6,11 @@ import com.use3w.grade.dto.CreateAssessmentDTO;
 import com.use3w.grade.model.Assessment;
 import com.use3w.grade.model.UndeterminedUser;
 import com.use3w.grade.projection.PendingAssessmentProjection;
+import com.use3w.grade.service.AssessmentQuestionService;
 import com.use3w.grade.service.AssessmentService;
 import com.use3w.grade.service.AssessmentStudentService;
 import com.use3w.grade.service.UserService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,32 +24,35 @@ import java.util.UUID;
 @RequestMapping("/assessments")
 public class AssessmentController {
 
-
     private final UserService userService;
     private final AssessmentService assessmentService;
     private final AssessmentStudentService assessmentStudentService;
+    private final AssessmentQuestionService assessmentQuestionService;
 
-    public AssessmentController(UserService userService, AssessmentService assessmentService, AssessmentStudentService assessmentStudentService) {
+    public AssessmentController(UserService userService, AssessmentService assessmentService, AssessmentStudentService assessmentStudentService, AssessmentQuestionService assessmentQuestionService) {
         this.userService = userService;
         this.assessmentService = assessmentService;
         this.assessmentStudentService = assessmentStudentService;
+        this.assessmentQuestionService = assessmentQuestionService;
     }
 
     @PostMapping
-    private ResponseEntity<Void> addAssessment(
+    @Transactional
+    public ResponseEntity<Void> addAssessment(
             @RequestBody @Valid CreateAssessmentDTO dto,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader
     ) {
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        assessmentService.createAssessmentByUser(dto, user);
+        Assessment assessment = assessmentService.createAssessmentByUser(dto, user.email());
+        assessmentQuestionService.addCategoriesToAssessment(assessment, dto.questions());
+        assessmentStudentService.addStudentsToAssessment(assessment);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping
     public ResponseEntity<List<AssessmentDetailsDTO>> listAssessments(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        List<AssessmentDetailsDTO> assessments = assessmentService.listAssessmentsDetailsByUser(user);
-        return ResponseEntity.ok(assessments);
+        return ResponseEntity.ok(assessmentService.listAssessmentsDetailsByUser(user.email()));
     }
 
     @GetMapping("/{id}/{classId}")
@@ -56,14 +61,14 @@ public class AssessmentController {
             @PathVariable("id") UUID id,
             @PathVariable("classId") UUID classId) {
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        Assessment assessment = assessmentService.getAssessmentByUserAndAssessmentIdAndClassId(user, id, classId);
+        Assessment assessment = assessmentService.getAssessmentByUserAndAssessmentIdAndClassId(user.email(), id, classId);
         return ResponseEntity.ok(assessmentStudentService.geAssessmentDetailsDTO(assessment));
     }
 
     @GetMapping("/pending")
     public ResponseEntity<List<PendingAssessmentProjection>> getPendingAssessments(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
         UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        return ResponseEntity.ok(assessmentService.getPendingAssessments(user));
+        return ResponseEntity.ok(assessmentService.getPendingAssessments(user.email()));
     }
 
 }

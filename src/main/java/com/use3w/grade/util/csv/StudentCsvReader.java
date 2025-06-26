@@ -14,7 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class StudentCsvReader implements CsvReader<Student> {
+class StudentCsvReader implements CsvReader<Student> {
+
     @Override
     public List<Student> readFromCsv(MultipartFile file) throws IOException {
         try (InputStreamReader reader = new InputStreamReader(file.getInputStream())) {
