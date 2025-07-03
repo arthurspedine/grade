@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -33,7 +35,7 @@ public class StudentService {
         try {
             List<Student> studentsFromCsv = reader.readFromCsv(csvFile);
             Map<String, Student> csvStudentsMap = studentsFromCsv.stream()
-                    .collect(Collectors.toMap(Student::getRm, student -> student));
+                    .collect(Collectors.toMap(Student::getRm, Function.identity()));
 
             // Validate the students, if they are in another class with the same createdBy
             validateStudents(newClass, csvStudentsMap);
@@ -41,11 +43,10 @@ public class StudentService {
             StudentsMap studentsMap = studentsSetup(csvStudentsMap);
 
             // Merge the lists to add each to the class
-            List<Student> allStudents = Stream.concat(studentsMap.existingStudents.stream(), studentsMap.newStudents.stream())
-                    .collect(Collectors.toList());
+            List<Student> allStudents = new ArrayList<>(studentsMap.existingStudents());
+            allStudents.addAll(studentsMap.newStudents());
 
             addStudentsListToClass(allStudents, newClass);
-
             repository.saveAll(allStudents);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -93,10 +94,15 @@ public class StudentService {
     }
 
     private void validateStudents(Class validateClass, Map<String, Student> csvStudentsMap) {
-        List<StudentClassProjection> violatingStudents = repository.findByClassCreatedBy(validateClass.getCreatedBy(), new ArrayList<>(csvStudentsMap.values().stream().toList()), validateClass.getName());
+        List<Student> csvStudents = new ArrayList<>(csvStudentsMap.values());
+        List<StudentClassProjection> violatingStudents = repository.findByClassCreatedBy(
+                validateClass.getCreatedBy(),
+                csvStudents,
+                validateClass.getName()
+        );
         if (!violatingStudents.isEmpty()) {
-            throw new ValidationException("Os seguintes estudantes já estão registrados em outras turmas criadas pelo mesmo usuário: "
-                                          + violatingStudents.stream()
+            throw new ValidationException("Os seguintes estudantes já estão registrados em outras turmas criadas pelo mesmo usuário: " +
+                                          violatingStudents.stream()
                                                   .map(StudentClassProjection::getStudentClass)
                                                   .collect(Collectors.joining(", ")));
         }
@@ -109,21 +115,13 @@ public class StudentService {
 
     private StudentsMap studentsSetup(Map<String, Student> fromMap) {
         // get students from database that are in csv
-        List<Student> existingStudents = repository.findByRmIn(new ArrayList<>(fromMap.keySet()));
+        List<String> rms = new ArrayList<>(fromMap.keySet());
+        List<Student> existingStudents = repository.findByRmIn(rms);
         Map<String, Student> existingStudentsMap = existingStudents.stream()
-                .collect(Collectors.toMap(Student::getRm, student -> student));
+                .collect(Collectors.toMap(Student::getRm, Function.identity()));
 
         // Creating the new students and saving
-        List<Student> newStudents = creatingNewStudents(fromMap, existingStudentsMap);
-
-        if (!newStudents.isEmpty()) {
-            repository.saveAll(newStudents);
-        }
-        return new StudentsMap(existingStudents, newStudents);
-    }
-
-    private List<Student> creatingNewStudents(Map<String, Student> csvStudentsMap, Map<String, Student> existingStudentsMap) {
-        return csvStudentsMap.entrySet().stream()
+        List<Student> newStudents = fromMap.entrySet().stream()
                 .filter(entry -> !existingStudentsMap.containsKey(entry.getKey()))
                 .map(entry -> {
                     Student student = new Student();
@@ -132,19 +130,23 @@ public class StudentService {
                     return student;
                 })
                 .collect(Collectors.toList());
+
+        return new StudentsMap(existingStudents, newStudents);
     }
 
     private void addStudentsListToClass(List<Student> studentsToAdd, Class classToBeAdded) {
+        Set<Student> studentSet = classToBeAdded.getStudents();
         studentsToAdd.forEach(student -> {
             student.getClasses().add(classToBeAdded);
-            classToBeAdded.getStudents().add(student);
+            studentSet.add(student);
         });
     }
 
     private void removeStudentsFromClass(List<Student> studentsToRemove, Class classToBeRemoved) {
+        Set<Student> studentSet = classToBeRemoved.getStudents();
         studentsToRemove.forEach(student -> {
             student.getClasses().remove(classToBeRemoved);
-            classToBeRemoved.getStudents().remove(student);
+            studentSet.remove(student);
         });
     }
 }
