@@ -29,8 +29,8 @@ public class AssessmentService {
     }
 
     @Transactional
-    public Assessment createAssessmentByUser(CreateAssessmentDTO dto, String createdBy) {
-        List<Class> classes = classService.findClassesByUserAndId(createdBy, dto.classes().stream().map(CreateAssessmentDTO.AddClassToAssessmentDTO::id).toList());
+    public Assessment createAssessmentByCreatedBy(CreateAssessmentDTO dto, String createdBy) {
+        List<Class> classes = classService.findClassesByCreatedByAndId(createdBy, dto.classes().stream().map(CreateAssessmentDTO.AddClassToAssessmentDTO::id).toList());
         if (classes.isEmpty())
             throw new EntityNotFoundException("Nenhuma classe encontrada.");
         Assessment assessment = new Assessment(dto.name(), createdBy, classes, LocalDate.parse(dto.assessmentDate()));
@@ -43,7 +43,7 @@ public class AssessmentService {
     }
 
     public Assessment getAssessmentByUserAndAssessmentIdAndClassId(String createdBy, UUID id, UUID classId) {
-        Assessment assessment = assessmentRepository.getAssessmentByEmailIdAndClassId(createdBy, id, classId);
+        Assessment assessment = assessmentRepository.getAssessmentByCreatedByIdAndClassId(createdBy, id, classId);
         if (assessment == null)
             throw new EntityNotFoundException("Avaliação não encontrada.");
         return assessment;

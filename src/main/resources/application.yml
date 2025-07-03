@@ -1,11 +1,6 @@
 server:
   port: 3010
 
-okta:
-  oauth2:
-    issuer: https://dev-13t5bonxphxnh36q.us.auth0.com/
-    audience: https://grade.use3w.com
-
 spring:
   profiles:
     active: dev
@@ -30,6 +25,9 @@ spring:
   ai:
     openai:
       api-key: ${GRADE_OPENAI_KEY}
-
-userinfo_url: ${GRADE_USERINFO_URL}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://accounts.google.com
 

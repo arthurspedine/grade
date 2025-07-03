@@ -26,8 +26,8 @@ public class ClassService {
         this.classRepository = classRepository;
     }
 
-    public List<ClassDetailsDTO> findAllClassesByUndeterminedUser(String createdBy) {
-        List<Class> classList = getAllClassesByUndeterminedUser(createdBy);
+    public List<ClassDetailsDTO> findAllClassesByCreatedBy(String createdBy) {
+        List<Class> classList = classRepository.findClassesByCreatedByAndActiveIsTrueOrderByNameAsc(createdBy);
         return classList.stream().map(this::mapperDetailsToDTO).toList();
     }
 
@@ -58,7 +58,7 @@ public class ClassService {
         classRepository.save(requestedClass);
     }
 
-    public ClassInfoDTO getClassInfoByUndeterminedUserAndId(String createdBy, UUID id) {
+    public ClassInfoDTO getClassInfoByCreatedByAndId(String createdBy, UUID id) {
         Class requestedClass = getClass(createdBy, id);
         return new ClassInfoDTO(mapperDetailsToDTO(requestedClass),
                 requestedClass.getStudents().stream()
@@ -66,7 +66,7 @@ public class ClassService {
                         .map(s -> new StudentDTO(s.getRm(), s.getName())).toList());
     }
 
-    public List<Class> findClassesByUserAndId(String createdBy, List<UUID> ids) {
+    public List<Class> findClassesByCreatedByAndId(String createdBy, List<UUID> ids) {
         return classRepository.findClassesByIdInAndActiveIsTrueAndCreatedBy(ids, createdBy);
     }
 
@@ -88,9 +88,5 @@ public class ClassService {
         if (requestedClass == null)
             throw new EntityNotFoundException("Class not found.");
         return requestedClass;
-    }
-
-    private List<Class> getAllClassesByUndeterminedUser(String createdBy) {
-        return classRepository.findClassesByCreatedByAndActiveIsTrueOrderByNameAsc(createdBy);
     }
 }
