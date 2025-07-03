@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 class StudentCsvReader implements CsvReader<Student> {
@@ -21,9 +22,9 @@ class StudentCsvReader implements CsvReader<Student> {
         try (InputStreamReader reader = new InputStreamReader(file.getInputStream())) {
             // ERRORS LIST
             List<String> validationErrors = new ArrayList<>();
+            AtomicInteger lineNumber = new AtomicInteger(1);
 
             // CONFIG CSVTOBEAN WITH VALIDATIONS
-            final int[] index = {1};
             CsvToBean<Student> csvToBean = new CsvToBeanBuilder<Student>(reader)
                     .withType(Student.class)
                     .withIgnoreLeadingWhiteSpace(true)
@@ -33,14 +34,14 @@ class StudentCsvReader implements CsvReader<Student> {
                         // VALIDATION
                         boolean isValid = true;
                         if (line[0] == null || line[0].trim().isEmpty()) {
-                            validationErrors.add("Linha " + index[0] + ": RM é obrigatório");
+                            validationErrors.add(String.format("Linha %d: RM é obrigatório", lineNumber.get()));
                             isValid = false;
                         }
                         if (line[1] == null || line[1].trim().isEmpty()) {
-                            validationErrors.add("Linha " + index[0] + ": Nome é obrigatório");
+                            validationErrors.add(String.format("Linha %d: Nome é obrigatório", lineNumber.get()));
                             isValid = false;
                         }
-                        index[0]++;
+                        lineNumber.incrementAndGet();
                         return isValid;
                     })
                     .build();
@@ -50,10 +51,11 @@ class StudentCsvReader implements CsvReader<Student> {
 
             // VERIFY IF THERE WAS ANY ERROR WHEN PARSED
             List<CsvException> exceptions = csvToBean.getCapturedExceptions();
-            if (exceptions != null) {
-                for (CsvException exception : exceptions) {
-                    validationErrors.add("Erro na linha " + exception.getLineNumber() + ": " + exception.getMessage());
-                }
+            if (exceptions != null && !exceptions.isEmpty()) {
+                exceptions.forEach(e ->
+                        validationErrors.add(String.format("Erro na linha %d: %s",
+                                e.getLineNumber(), e.getMessage()))
+                );
             }
 
             // IF THERE IS AN ERROR, IT THROWS THE EXCEPTION
