@@ -1,33 +1,26 @@
 package com.use3w.grade.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.use3w.grade.infra.http.OAuthUserRequest;
-import com.use3w.grade.model.UndeterminedUser;
-import jakarta.validation.ValidationException;
+import com.use3w.grade.util.UserAuthentication;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserService {
+class UserService implements UserAuthentication {
 
-    private final OAuthUserRequest request;
+    private UserService() {}
 
-    private final TokenService tokenService;
-
-    public UserService(OAuthUserRequest request, TokenService tokenService) {
-        this.request = request;
-        this.tokenService = tokenService;
-    }
-
-    public UndeterminedUser fetchUndeterminedUserByHeader(String authHeader) {
-        String token = tokenService.getTokenValue(authHeader);
-        String auth = request.getUserInfo(token);
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(auth, UndeterminedUser.class);
-        } catch (JsonProcessingException e) {
-            throw new ValidationException(e.getLocalizedMessage());
+    @Override
+    public String getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication instanceof JwtAuthenticationToken jwtAuth) {
+            Jwt jwt = jwtAuth.getToken();
+            String email = jwt.getClaimAsString("email");
+            if (email != null) return email;
+            throw new IllegalStateException("Email claim not found in JWT");
         }
+        throw new IllegalStateException("No authenticated user found");
     }
-
 }

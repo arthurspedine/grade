@@ -16,10 +16,10 @@ public interface AssessmentRepository extends JpaRepository<Assessment, UUID> {
     @Query("""
                     select a from Assessment a
                     join a.classes c
-                    where a.id = :id and c.id = :classId and a.createdBy = :email
+                    where a.id = :id and c.id = :classId and a.createdBy = :createdBy
             """)
-    Assessment getAssessmentByEmailIdAndClassId(
-            @Param("email") String email,
+    Assessment getAssessmentByCreatedByIdAndClassId(
+            @Param("createdBy") String createdBy,
             @Param("id") UUID id,
             @Param("classId") UUID classId
     );

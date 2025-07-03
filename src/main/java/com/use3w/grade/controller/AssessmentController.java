@@ -4,15 +4,13 @@ import com.use3w.grade.dto.AssessmentDetailsDTO;
 import com.use3w.grade.dto.AssessmentInfoDTO;
 import com.use3w.grade.dto.CreateAssessmentDTO;
 import com.use3w.grade.model.Assessment;
-import com.use3w.grade.model.UndeterminedUser;
 import com.use3w.grade.projection.PendingAssessmentProjection;
 import com.use3w.grade.service.AssessmentQuestionService;
 import com.use3w.grade.service.AssessmentService;
 import com.use3w.grade.service.AssessmentStudentService;
-import com.use3w.grade.service.UserService;
+import com.use3w.grade.util.UserAuthentication;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,13 +22,13 @@ import java.util.UUID;
 @RequestMapping("/assessments")
 public class AssessmentController {
 
-    private final UserService userService;
+    private final UserAuthentication userAuthentication;
     private final AssessmentService assessmentService;
     private final AssessmentStudentService assessmentStudentService;
     private final AssessmentQuestionService assessmentQuestionService;
 
-    public AssessmentController(UserService userService, AssessmentService assessmentService, AssessmentStudentService assessmentStudentService, AssessmentQuestionService assessmentQuestionService) {
-        this.userService = userService;
+    public AssessmentController(UserAuthentication userAuthentication, AssessmentService assessmentService, AssessmentStudentService assessmentStudentService, AssessmentQuestionService assessmentQuestionService) {
+        this.userAuthentication = userAuthentication;
         this.assessmentService = assessmentService;
         this.assessmentStudentService = assessmentStudentService;
         this.assessmentQuestionService = assessmentQuestionService;
@@ -39,36 +37,34 @@ public class AssessmentController {
     @PostMapping
     @Transactional
     public ResponseEntity<Void> addAssessment(
-            @RequestBody @Valid CreateAssessmentDTO dto,
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader
+            @RequestBody @Valid CreateAssessmentDTO dto
     ) {
-        UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        Assessment assessment = assessmentService.createAssessmentByUser(dto, user.email());
+        String user = userAuthentication.getCurrentUser();
+        Assessment assessment = assessmentService.createAssessmentByCreatedBy(dto, user);
         assessmentQuestionService.addCategoriesToAssessment(assessment, dto.questions());
         assessmentStudentService.addStudentsToAssessment(assessment);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping
-    public ResponseEntity<List<AssessmentDetailsDTO>> listAssessments(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
-        UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        return ResponseEntity.ok(assessmentService.listAssessmentsDetailsByUser(user.email()));
+    public ResponseEntity<List<AssessmentDetailsDTO>> listAssessments() {
+        String user = userAuthentication.getCurrentUser();
+        return ResponseEntity.ok(assessmentService.listAssessmentsDetailsByUser(user));
     }
 
     @GetMapping("/{id}/{classId}")
     public ResponseEntity<AssessmentInfoDTO> getAssessmentInfo(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
             @PathVariable("id") UUID id,
             @PathVariable("classId") UUID classId) {
-        UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        Assessment assessment = assessmentService.getAssessmentByUserAndAssessmentIdAndClassId(user.email(), id, classId);
+        String user = userAuthentication.getCurrentUser();
+        Assessment assessment = assessmentService.getAssessmentByUserAndAssessmentIdAndClassId(user, id, classId);
         return ResponseEntity.ok(assessmentStudentService.geAssessmentDetailsDTO(assessment));
     }
 
     @GetMapping("/pending")
-    public ResponseEntity<List<PendingAssessmentProjection>> getPendingAssessments(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
-        UndeterminedUser user = userService.fetchUndeterminedUserByHeader(authHeader);
-        return ResponseEntity.ok(assessmentService.getPendingAssessments(user.email()));
+    public ResponseEntity<List<PendingAssessmentProjection>> getPendingAssessments() {
+        String user = userAuthentication.getCurrentUser();
+        return ResponseEntity.ok(assessmentService.getPendingAssessments(user));
     }
 
 }
