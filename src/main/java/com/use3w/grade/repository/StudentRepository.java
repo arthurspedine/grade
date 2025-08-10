@@ -1,5 +1,6 @@
 package com.use3w.grade.repository;
 
+import com.use3w.grade.model.ECategory;
 import com.use3w.grade.model.Student;
 import com.use3w.grade.projection.StudentClassProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,12 +20,18 @@ public interface StudentRepository extends JpaRepository<Student, String> {
                 WHERE c.createdBy = :createdBy
                 AND c.active = true
                 AND c.name != :className
+                AND c.category = :category
                 AND s IN :students
             """)
-    List<StudentClassProjection> findByClassCreatedBy(@Param("createdBy") String createdBy, @Param("students") List<Student> students, @Param("className") String className);
+    List<StudentClassProjection> findByClassCreatedByAndCategory(
+            @Param("createdBy") String createdBy,
+            @Param("students") List<Student> students,
+            @Param("className") String className,
+            @Param("category") ECategory category
+    );
 
     @Query("""
-                SELECT COUNT(s)
+                SELECT COUNT(DISTINCT s.rm)
                 FROm Student s
                 JOIN s.classes c
                 WHERE c.createdBy = :createdBy

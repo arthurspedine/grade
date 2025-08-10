@@ -26,8 +26,8 @@ public class AssessmentStudentService {
 
     public void addStudentsToAssessment(Assessment assessment) {
         Set<AssessmentStudent> studentsToAdd = assessment.getClasses().stream()
-                .flatMap(c -> c.getStudents().stream()
-                        .map(student -> new AssessmentStudent(student, assessment)))
+                .flatMap(classEntity -> classEntity.getStudents().stream()
+                        .map(student -> new AssessmentStudent(student, assessment, classEntity.getId())))
                 .collect(Collectors.toSet());
         repository.saveAll(studentsToAdd);
     }
@@ -36,15 +36,18 @@ public class AssessmentStudentService {
         return repository.countEvaluatedStudents(classId, assessmentId);
     }
 
-    public AssessmentInfoDTO geAssessmentDetailsDTO(Assessment assessment) {
-        List<AssessmentStudent> assessmentStudents = repository.findByAssessmentOrderByStudent(assessment);
+    public AssessmentInfoDTO geAssessmentDetailsDTO(Assessment assessment, UUID classId) {
+        List<AssessmentStudent> assessmentStudents = repository.findByAssessmentOrderByStudent(assessment, classId);
         final int[] countEvaluatedStudents = {0};
         List<AssessmentStudentDTO> students = assessmentStudents.stream().map(assessmentStudent -> {
             boolean finished = assessmentStudent.getFinished();
             countEvaluatedStudents[0] += finished ? 1 : 0;
             Student student = assessmentStudent.getStudent();
+
             return new AssessmentStudentDTO(
-                    new AssessmentStudentInfoDTO(assessmentStudent.getId(), student.getName(),
+                    new AssessmentStudentInfoDTO(assessmentStudent.getId(), assessment.getId(),
+                            assessmentStudent.getClassId(),
+                            student.getName(),
                     student.getRm()), assessmentStudent.getFinished()
             );
         }).toList();
@@ -78,11 +81,15 @@ public class AssessmentStudentService {
 
             return new StudentEvaluationInfoDTO(
                     new AssessmentStudentInfoDTO(
-                            assessmentStudent.getId(), student.getName(),
-                            student.getRm()), null,
-                    answers, assessmentStudent.getRawFeedback(),
-                            assessmentStudent.getFinalFeedback(), assessmentStudent.getFinishedDate().toString(),
-                            assessmentStudent.getTotalScore(), assessmentStudent.getFinished()
+                            assessmentStudent.getId(), assessmentStudent.getAssessment().getId(), assessmentStudent.getClassId(),
+                            student.getName(), student.getRm()),
+                    null,
+                    answers,
+                    assessmentStudent.getRawFeedback(),
+                    assessmentStudent.getFinalFeedback(),
+                    assessmentStudent.getFinishedDate().toString(),
+                    assessmentStudent.getTotalScore(),
+                    assessmentStudent.getFinished()
             );
         } else {
             Map<Integer, List<AssessmentQuestion>> questionsByNumber = assessmentStudent.getAssessment().getQuestions().stream()
@@ -99,9 +106,17 @@ public class AssessmentStudentService {
                         return new AssessmentEvaluationQuestionDTO(questionNumber, categories);
                     })
                     .collect(Collectors.toList());
+
             return new StudentEvaluationInfoDTO(
-                    new AssessmentStudentInfoDTO(assessmentStudent.getId(), student.getName(), student.getRm()),
-                    questions, null, null, null, null, null, assessmentStudent.getFinished()
+                    new AssessmentStudentInfoDTO(assessmentStudent.getId(), assessmentStudent.getAssessment().getId(),
+                            assessmentStudent.getClassId(), student.getName(), student.getRm()),
+                    questions,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    assessmentStudent.getFinished()
             );
         }
     }

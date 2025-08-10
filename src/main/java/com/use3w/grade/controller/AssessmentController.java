@@ -58,7 +58,7 @@ public class AssessmentController {
             @PathVariable("classId") UUID classId) {
         String user = userAuthentication.getCurrentUser();
         Assessment assessment = assessmentService.getAssessmentByUserAndAssessmentIdAndClassId(user, id, classId);
-        return ResponseEntity.ok(assessmentStudentService.geAssessmentDetailsDTO(assessment));
+        return ResponseEntity.ok(assessmentStudentService.geAssessmentDetailsDTO(assessment, classId));
     }
 
     @GetMapping("/pending")

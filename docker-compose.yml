@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   mysql:
-    image: mysql:8.0.40-debian
+    image: mysql:8.0.40
     environment:
       MYSQL_ROOT_PASSWORD: ${GRADE_DB_PASSWORD}
       MYSQL_USER: ${GRADE_DB_USER}

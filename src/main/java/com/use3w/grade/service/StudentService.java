@@ -37,7 +37,7 @@ public class StudentService {
             Map<String, Student> csvStudentsMap = studentsFromCsv.stream()
                     .collect(Collectors.toMap(Student::getRm, Function.identity()));
 
-            // Validate the students, if they are in another class with the same createdBy
+            // Validate the students, if they are in another class with the same createdBy and category
             validateStudents(newClass, csvStudentsMap);
 
             StudentsMap studentsMap = studentsSetup(csvStudentsMap);
@@ -95,10 +95,11 @@ public class StudentService {
 
     private void validateStudents(Class validateClass, Map<String, Student> csvStudentsMap) {
         List<Student> csvStudents = new ArrayList<>(csvStudentsMap.values());
-        List<StudentClassProjection> violatingStudents = repository.findByClassCreatedBy(
+        List<StudentClassProjection> violatingStudents = repository.findByClassCreatedByAndCategory(
                 validateClass.getCreatedBy(),
                 csvStudents,
-                validateClass.getName()
+                validateClass.getName(),
+                validateClass.getCategory()
         );
         if (!violatingStudents.isEmpty()) {
             throw new ValidationException("Os seguintes estudantes já estão registrados em outras turmas criadas pelo mesmo usuário: " +

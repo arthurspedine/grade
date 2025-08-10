@@ -24,7 +24,7 @@ spring:
       max-request-size: 10MB
   ai:
     openai:
-      api-key: ${GRADE_OPENAI_KEY}
+      api-key: ${GRADE_OPENAI_KEY:#{null}}
   security:
     oauth2:
       resourceserver:
