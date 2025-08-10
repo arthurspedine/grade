@@ -54,10 +54,13 @@ public class AssessmentService {
     }
 
     public List<PendingAssessmentProjection> getPendingAssessments(String createdBy) {
-        return assessmentRepository.findPendingAssessments(createdBy, LocalDate.now());
+        return assessmentRepository.findPendingAssessments(createdBy);
     }
 
     private AssessmentDetailsDTO mapperToDTO(Assessment assessment) {
+        if (assessment.getClasses().isEmpty()) {
+            return null;
+        }
         return new AssessmentDetailsDTO(assessment.getId(), assessment.getName(),
                 assessment.getAssessmentDate().toString(),
                 assessment.getClasses().stream()

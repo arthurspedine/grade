@@ -20,6 +20,9 @@ public class AssessmentStudent {
     @JoinColumn(name = "assessment_id")
     private Assessment assessment;
 
+    @JoinColumn(name = "class_id")
+    private UUID classId;
+
     private String rawFeedback;
 
     private String finalFeedback;
@@ -34,9 +37,10 @@ public class AssessmentStudent {
     public AssessmentStudent() {
     }
 
-    public AssessmentStudent(Student student, Assessment assessment) {
+    public AssessmentStudent(Student student, Assessment assessment, UUID classId) {
         this.student = student;
         this.assessment = assessment;
+        this.classId = classId;
         this.finished = false;
         this.totalScore = 0d;
     }
@@ -92,4 +96,9 @@ public class AssessmentStudent {
     public void setFinishedDate(LocalDate finishedDate) {
         this.finishedDate = finishedDate;
     }
+
+    public UUID getClassId() {
+        return classId;
+    }
+
 }

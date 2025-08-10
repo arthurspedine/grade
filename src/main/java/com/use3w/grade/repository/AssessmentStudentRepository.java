@@ -13,13 +13,11 @@ public interface AssessmentStudentRepository extends JpaRepository<AssessmentStu
 
     @Query(value = """
             select COUNT(DISTINCT aSt.student_rm) from assessments_students aSt
-            inner join assessments a on aSt.assessment_id = a.id
-            inner join assessments_classes ac on ac.assessment_id = a.id
-            where ac.class_id = :classId and aSt.finished = true and aSt.assessment_id = :assessmentId""", nativeQuery = true)
+            where aSt.class_id = :classId and aSt.finished = true and aSt.assessment_id = :assessmentId""", nativeQuery = true)
     Integer countEvaluatedStudents(@Param("classId") UUID classId, @Param("assessmentId") UUID assessmentId);
 
-    @Query("select a from AssessmentStudent a where a.assessment = ?1 order by a.student.name ASC")
-    List<AssessmentStudent> findByAssessmentOrderByStudent(Assessment assessment);
+    @Query("select a from AssessmentStudent a where a.assessment = :assessment and a.classId = :classId order by a.student.name ASC")
+    List<AssessmentStudent> findByAssessmentOrderByStudent(@Param("assessment") Assessment assessment, @Param("classId") UUID classId);
 
     @Query(value = """
                 select aSt from AssessmentStudent aSt

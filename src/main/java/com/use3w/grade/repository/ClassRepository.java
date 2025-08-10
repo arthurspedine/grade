@@ -30,17 +30,18 @@ public interface ClassRepository extends JpaRepository<Class, UUID> {
         SELECT new com.use3w.grade.dto.ClassPerformanceDTO(
             c.id,
             c.name,
-            COALESCE(AVG(CASE WHEN aSt.finished = true THEN aSt.totalScore ELSE NULL END), 0.0)
+            ROUND(COALESCE(AVG(CASE WHEN aSt.finished = true THEN aSt.totalScore ELSE NULL END), 0.0), 2)
         )
         FROM Class c
         JOIN c.students s
         LEFT JOIN s.assessments aSt
-        WHERE c.createdBy = :createdBy
+        ON aSt.classId = c.id
+        WHERE c.createdBy = :createdBy and c.active = true
         GROUP BY c.id
         ORDER BY
-            COALESCE(AVG(CASE WHEN aSt.finished = true THEN aSt.totalScore ELSE NULL END), 0.0) DESC,
+            ROUND(COALESCE(AVG(CASE WHEN aSt.finished = true THEN aSt.totalScore ELSE NULL END), 0.0), 2) DESC,
             c.name
-        LIMIT 5
+        LIMIT 3
 """)
     List<ClassPerformanceDTO> getClassesPerformance(@Param("createdBy") String createdBy);
 
