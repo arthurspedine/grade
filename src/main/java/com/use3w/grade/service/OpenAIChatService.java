@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 @Service
 public class OpenAIChatService {
@@ -23,7 +24,7 @@ public class OpenAIChatService {
     }
 
     public String getFeedback(String answeredQuestions, String rawFeedback) {
-        if (key == null) {
+        if (Objects.equals(key.toLowerCase(), "none")) {
             return "Chave de API do OpenAI não configurada.";
         }
         final String template = buildFeedbackTemplate(answeredQuestions, rawFeedback);
