@@ -4,4 +4,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  docker:
+    compose:
+      file: docker-compose.dev.yml
 debug: true

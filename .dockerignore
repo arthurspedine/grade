@@ -1,8 +1,18 @@
-.gitignore
-.gradle/
-.idea/
-build/
-exec.sh
-exec.ps1
-README.md
-lombok.config
+# Gradle cache e build
+.gradle
+build
+out
+
+# IDE e configs locais
+.idea
+*.iml
+.vscode
+
+# System
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+tmp
+.git
