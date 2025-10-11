@@ -1,15 +1,16 @@
 package com.use3w.grade.controller;
 
-import com.use3w.grade.dto.AssessmentStudentFinishEvaluation;
-import com.use3w.grade.dto.CategoryAnswerDTO;
-import com.use3w.grade.dto.GetChatFeedbackDTO;
-import com.use3w.grade.dto.StudentEvaluationInfoDTO;
+import com.use3w.grade.dto.*;
 import com.use3w.grade.model.AssessmentAnswer;
 import com.use3w.grade.service.AssessmentAnswerService;
 import com.use3w.grade.service.AssessmentStudentService;
 import com.use3w.grade.service.OpenAIChatService;
 import com.use3w.grade.util.UserAuthentication;
+import com.use3w.grade.util.pdf.PdfWriter;
 import jakarta.validation.ValidationException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,5 +61,20 @@ public class AssessmentStudentController {
     @PostMapping("/feedback")
     public ResponseEntity<Map<String, String>> getChatFeedback(@RequestBody GetChatFeedbackDTO dto) {
         return ResponseEntity.ok(Map.of("message", (openAIChatService.getFeedback(dto.answeredCategories(), dto.rawFeedback()))));
+    }
+
+    @GetMapping("/student/{id}/feedback-file")
+    public ResponseEntity<byte[]> getFeedbackFile(@PathVariable("id") UUID id) {
+        String user = userAuthentication.getCurrentUser();
+        StudentEvaluationPdfDTO evaluation = assessmentStudentService.getStudentEvaluationPdfDTO(user, id);
+        byte[] file = assessmentStudentService.generatePdf(evaluation);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment",
+                String.format("feedback-rm%s.pdf",
+                        evaluation.student().rm()));
+        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+        return new ResponseEntity<>(file, headers, HttpStatus.OK);
     }
 }

@@ -51,6 +51,11 @@ public class RestExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errors.stream().map(ExceptionData::new).toList());
     }
 
+    @ExceptionHandler(AssessmentNotEvaluatedException.class)
+    public ResponseEntity<ExceptionData> studentCsvValidationException(AssessmentNotEvaluatedException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ExceptionData(e.getMessage()));
+    }
+
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ExceptionData> validationException(ValidationException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ExceptionData(e.getMessage()));

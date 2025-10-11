@@ -1,8 +1,10 @@
 package com.use3w.grade.service;
 
 import com.use3w.grade.dto.*;
+import com.use3w.grade.infra.exception.AssessmentNotEvaluatedException;
 import com.use3w.grade.model.*;
 import com.use3w.grade.repository.AssessmentStudentRepository;
+import com.use3w.grade.util.pdf.PdfWriter;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -18,10 +20,14 @@ public class AssessmentStudentService {
 
     private final AssessmentStudentRepository repository;
     private final AssessmentAnswerService assessmentAnswerService;
+    private final PdfWriter<StudentEvaluationPdfDTO> pdfWriter;
+    private final ClassService classService;
 
-    public AssessmentStudentService(AssessmentStudentRepository repository, AssessmentAnswerService assessmentAnswerService) {
+    public AssessmentStudentService(AssessmentStudentRepository repository, AssessmentAnswerService assessmentAnswerService, PdfWriter<StudentEvaluationPdfDTO> pdfWriter, ClassService classService) {
         this.repository = repository;
         this.assessmentAnswerService = assessmentAnswerService;
+        this.pdfWriter = pdfWriter;
+        this.classService = classService;
     }
 
     public void addStudentsToAssessment(Assessment assessment) {
@@ -63,21 +69,7 @@ public class AssessmentStudentService {
             Map<Integer, List<AssessmentQuestion>> questionsByNumber = assessmentStudent.getAssessment().getQuestions().stream()
                     .collect(Collectors.groupingBy(AssessmentQuestion::getQuestionNumber));
 
-            List<AssessmentAnswerDTO> answers = questionsByNumber.entrySet().stream()
-                    .map(entry -> {
-                        Integer questionNumber = entry.getKey();
-                        List<CategoryAnswerDTO> categories = entry.getValue().stream()
-                                .map(question -> new CategoryAnswerDTO(
-                                        question.getId(), question.getName(),
-                                        question.getScore(),
-                                        assessmentAnswers.stream()
-                                                .filter(answer -> answer.getQuestionId().equals(question.getId()))
-                                                .findFirst()
-                                                .map(AssessmentAnswer::getScore).
-                                                orElse(0.0)
-                                )).toList();
-                        return new AssessmentAnswerDTO(questionNumber, categories);
-                    }).toList();
+            List<AssessmentAnswerDTO> answers = mapAnswers(questionsByNumber, assessmentAnswers);
 
             return new StudentEvaluationInfoDTO(
                     new AssessmentStudentInfoDTO(
@@ -134,5 +126,52 @@ public class AssessmentStudentService {
         assessmentStudent.setTotalScore(totalScore[0]);
         assessmentStudent.setFinishedDate(LocalDate.now());
         repository.save(assessmentStudent);
+    }
+
+    public StudentEvaluationPdfDTO getStudentEvaluationPdfDTO(String createdBy, UUID id) {
+        AssessmentStudent assessmentStudent = repository.findByIdAndUser(createdBy, id);
+        if (!assessmentStudent.getFinished()) {
+            throw new AssessmentNotEvaluatedException("Avaliação não finalizada para este estudante.");
+        }
+        Student student = assessmentStudent.getStudent();
+        Set<AssessmentAnswer> assessmentAnswers =  assessmentAnswerService.findAllByAssessmentStudentId(id);
+        Map<Integer, List<AssessmentQuestion>> questionsByNumber = assessmentStudent.getAssessment().getQuestions().stream()
+                .collect(Collectors.groupingBy(AssessmentQuestion::getQuestionNumber));
+
+        List<AssessmentAnswerDTO> answers = mapAnswers(questionsByNumber, assessmentAnswers);
+
+        return new StudentEvaluationPdfDTO(
+                new StudentEvaluationPdfDTO.StudentPdfInfoDTO(
+                        student.getName(), student.getRm(),
+                        assessmentStudent.getAssessment().getName(),
+                        classService.getClassNameById(assessmentStudent.getClassId())
+                ),
+                answers,
+                assessmentStudent.getFinalFeedback(),
+                assessmentStudent.getFinishedDate().toString(),
+                assessmentStudent.getTotalScore()
+        );
+    }
+
+    public byte[] generatePdf(StudentEvaluationPdfDTO evaluation) {
+        return pdfWriter.write(evaluation);
+    }
+
+    private static List<AssessmentAnswerDTO> mapAnswers(Map<Integer, List<AssessmentQuestion>> questionsByNumber, Set<AssessmentAnswer> assessmentAnswers) {
+        return questionsByNumber.entrySet().stream()
+                .map(entry -> {
+                    Integer questionNumber = entry.getKey();
+                    List<CategoryAnswerDTO> categories = entry.getValue().stream()
+                            .map(question -> new CategoryAnswerDTO(
+                                    question.getId(), question.getName(),
+                                    question.getScore(),
+                                    assessmentAnswers.stream()
+                                            .filter(answer -> answer.getQuestionId().equals(question.getId()))
+                                            .findFirst()
+                                            .map(AssessmentAnswer::getScore).
+                                            orElse(0.0)
+                            )).toList();
+                    return new AssessmentAnswerDTO(questionNumber, categories);
+                }).toList();
     }
 }

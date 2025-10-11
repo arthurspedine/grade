@@ -45,4 +45,6 @@ public interface ClassRepository extends JpaRepository<Class, UUID> {
 """)
     List<ClassPerformanceDTO> getClassesPerformance(@Param("createdBy") String createdBy);
 
+    @Query("SELECT c.name FROM Class c WHERE c.id = :classId AND c.active = TRUE")
+    String findNameById(@Param("classId") UUID classId);
 }

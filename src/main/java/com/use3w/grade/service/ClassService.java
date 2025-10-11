@@ -89,4 +89,8 @@ public class ClassService {
             throw new EntityNotFoundException("Class not found.");
         return requestedClass;
     }
+
+    public String getClassNameById(UUID classId) {
+        return classRepository.findNameById(classId);
+    }
 }
