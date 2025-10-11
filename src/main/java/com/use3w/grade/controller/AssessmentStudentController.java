@@ -57,7 +57,7 @@ public class AssessmentStudentController {
         return ResponseEntity.status(201).build();
     }
 
-    @PostMapping("/chat")
+    @PostMapping("/feedback")
     public ResponseEntity<Map<String, String>> getChatFeedback(@RequestBody GetChatFeedbackDTO dto) {
         return ResponseEntity.ok(Map.of("message", (openAIChatService.getFeedback(dto.answeredCategories(), dto.rawFeedback()))));
     }
