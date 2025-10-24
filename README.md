@@ -61,6 +61,67 @@ The application includes a robust PDF generation system that allows educators to
 
 ## ⚙️ Installation
 
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/tiago-ferrer/grade.git grade-backend
+cd grade-backend
+```
+
+### 2. Environment Configuration
+
+Create the following environment variables or update the application configuration:
+
+```bash
+export GRADE_DB_URL=jdbc:mysql://localhost:3306/grade
+export GRADE_DB_USER=your_db_username
+export GRADE_DB_PASSWORD=your_db_password
+export GRADE_OPENAI_KEY=your_openai_api_key # or set "none" if not using OpenAI
+export PORT=3010
+```
+
+### 3. Database Setup
+
+Ensure MySQL is running and create the database:
+
+```sql
+CREATE DATABASE grade CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+### 4. Run the Application
+
+#### Using Gradle Wrapper (Recommended)
+
+```bash
+./gradlew bootRun
+```
+
+#### Using Docker Compose (Development)
+
+```bash
+docker-compose -f docker-compose.dev.yml up
+```
+
+#### Using Docker Compose (Production)
+
+> **Important:** Make sure to set the frontend environments before starting the containers.
+
+```bash
+export GOOGLE_CLIENT_ID=your_google_client_id
+export GOOGLE_CLIENT_SECRET=your_google_client_secret
+export NEXTAUTH_SECRET=your_nextauth_secret
+export NEXTAUTH_URL=http://localhost:3000
+export BACKEND_URL=http://localhost:3010
+```
+
+- Now start the Docker containers:
+
+```bash
+docker-compose up -d
+```
+
+##### The application will start on `http://localhost:3010`
+
 ## 📝 API Documentation
 
 API endpoints are organized by domain:
