@@ -4,7 +4,7 @@
 [![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-blue.svg)](https://www.mysql.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-> **Note**: This is the backend repository. The frontend application is available in a separate repository: [Grade Frontend Repository](https://github.com/tiago-ferrer/grade-frontend)
+> **Note**: This is the backend repository. The frontend application is available in a separate repository: [Grade Frontend Repository](https://github.com/arthurspedine/grade-frontend)
 
 ## 🚀 Live Application
 
@@ -64,7 +64,7 @@ The application includes a robust PDF generation system that allows educators to
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/tiago-ferrer/grade.git grade-backend
+git clone https://github.com/arthurspedine/grade.git grade-backend
 cd grade-backend
 ```
 
@@ -166,6 +166,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you encounter any issues or have questions:
 
-1. Check the [Issues](https://github.com/tiago-ferrer/grade/issues) page
+1. Check the [Issues](https://github.com/arthurspedine/grade/issues) page
 2. Create a new issue with detailed information about your problem
 3. Include relevant error messages and system information
