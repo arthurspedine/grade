@@ -33,8 +33,10 @@ public interface AssessmentRepository extends JpaRepository<Assessment, UUID> {
     );
 
     @Query("""
-                    SELECT COUNT(a)
+                    SELECT COUNT(DISTINCT a.id)
                     FROM Assessment a
+                    join a.classes c
+                    on c.active = true
                     WHERE a.createdBy = :createdBy
             """)
     Integer countByAssessmentCreatedBy(@Param("createdBy") String createdBy);
