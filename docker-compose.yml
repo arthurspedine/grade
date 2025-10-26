@@ -19,7 +19,7 @@ services:
       retries: 5
 
   backend:
-    image: grade/server
+    image: spedine/grade-server
     container_name: grade-backend
     depends_on:
       mysql:
@@ -35,7 +35,7 @@ services:
       - "3010:3010"
 
   frontend:
-    image: grade/web
+    image: spedine/grade-web
     container_name: grade-frontend
     depends_on:
       - backend
