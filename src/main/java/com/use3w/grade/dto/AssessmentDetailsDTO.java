@@ -7,6 +7,7 @@ public record AssessmentDetailsDTO(
         UUID id,
         String name,
         String assessmentDate,
+        Boolean editable,
         Set<AssessmentDetailsClassDTO> classes
 ) {
     public record AssessmentDetailsClassDTO(

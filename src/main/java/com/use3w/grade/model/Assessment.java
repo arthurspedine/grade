@@ -25,6 +25,7 @@ public class Assessment {
     private Set<Class> classes = new HashSet<>();
 
     @OneToMany(mappedBy = "assessment")
+    @OrderBy("questionNumber ASC, categoryNumber ASC")
     private Set<AssessmentQuestion> questions = new HashSet<>();
 
     @Column(nullable = false)
@@ -55,6 +56,14 @@ public class Assessment {
         return Objects.hashCode(id);
     }
 
+    public void addClass(Class clazz) {
+        classes.add(clazz);
+    }
+
+    public void removeClass(Class clazz) {
+        classes.remove(clazz);
+    }
+
     public UUID getId() {
         return id;
     }
@@ -79,4 +88,11 @@ public class Assessment {
         return assessmentDate;
     }
 
+    public void setAssessmentDate(LocalDate assessmentDate) {
+        this.assessmentDate = assessmentDate;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
 }

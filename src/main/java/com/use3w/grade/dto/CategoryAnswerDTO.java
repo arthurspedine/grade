@@ -8,6 +8,7 @@ public record CategoryAnswerDTO(
         UUID id,
         String name,
         Double score,
+        Integer categoryNumber,
         Double answeredScore
 ) {
     public AssessmentAnswer getAs() { // DTO -> Entity

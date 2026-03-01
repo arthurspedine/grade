@@ -3,7 +3,6 @@ package com.use3w.grade.model;
 import jakarta.persistence.*;
 
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -26,17 +25,19 @@ public class AssessmentQuestion {
     @Column(nullable = false)
     private Integer questionNumber;
 
-    @OneToMany
-    private Set<AssessmentAnswer> answers;
+    @Column(nullable = false)
+    private Integer categoryNumber;
+
 
     public AssessmentQuestion() {
     }
 
-    public AssessmentQuestion(Assessment assessment, String name, Double score, Integer questionNumber) {
+    public AssessmentQuestion(Assessment assessment, String name, Double score, Integer questionNumber, Integer categoryNumber) {
         this.assessment = assessment;
         this.name = name;
         this.score = score;
         setQuestionNumber(questionNumber);
+        this.categoryNumber = categoryNumber;
     }
 
     public UUID getId() {
@@ -63,6 +64,10 @@ public class AssessmentQuestion {
 
     public Integer getQuestionNumber() {
         return questionNumber;
+    }
+
+    public Integer getCategoryNumber() {
+        return categoryNumber;
     }
 
     @Override

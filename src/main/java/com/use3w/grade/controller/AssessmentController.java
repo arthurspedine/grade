@@ -1,10 +1,9 @@
 package com.use3w.grade.controller;
 
-import com.use3w.grade.dto.AssessmentDetailsDTO;
-import com.use3w.grade.dto.AssessmentInfoDTO;
-import com.use3w.grade.dto.CreateAssessmentDTO;
+import com.use3w.grade.dto.*;
 import com.use3w.grade.model.Assessment;
 import com.use3w.grade.projection.PendingAssessmentProjection;
+import com.use3w.grade.service.AssessmentAnswerService;
 import com.use3w.grade.service.AssessmentQuestionService;
 import com.use3w.grade.service.AssessmentService;
 import com.use3w.grade.service.AssessmentStudentService;
@@ -26,12 +25,14 @@ public class AssessmentController {
     private final AssessmentService assessmentService;
     private final AssessmentStudentService assessmentStudentService;
     private final AssessmentQuestionService assessmentQuestionService;
+    private final AssessmentAnswerService assessmentAnswerService;
 
-    public AssessmentController(UserAuthentication userAuthentication, AssessmentService assessmentService, AssessmentStudentService assessmentStudentService, AssessmentQuestionService assessmentQuestionService) {
+    public AssessmentController(UserAuthentication userAuthentication, AssessmentService assessmentService, AssessmentStudentService assessmentStudentService, AssessmentQuestionService assessmentQuestionService, AssessmentAnswerService assessmentAnswerService) {
         this.userAuthentication = userAuthentication;
         this.assessmentService = assessmentService;
         this.assessmentStudentService = assessmentStudentService;
         this.assessmentQuestionService = assessmentQuestionService;
+        this.assessmentAnswerService = assessmentAnswerService;
     }
 
     @PostMapping
@@ -42,7 +43,7 @@ public class AssessmentController {
         String user = userAuthentication.getCurrentUser();
         Assessment assessment = assessmentService.createAssessmentByCreatedBy(dto, user);
         assessmentQuestionService.addCategoriesToAssessment(assessment, dto.questions());
-        assessmentStudentService.addStudentsToAssessment(assessment);
+        assessmentStudentService.addStudentsToAssessment(assessment, assessment.getClasses());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -54,8 +55,8 @@ public class AssessmentController {
 
     @GetMapping("/{id}/{classId}")
     public ResponseEntity<AssessmentInfoDTO> getAssessmentInfo(
-            @PathVariable("id") UUID id,
-            @PathVariable("classId") UUID classId) {
+            @PathVariable UUID id,
+            @PathVariable UUID classId) {
         String user = userAuthentication.getCurrentUser();
         Assessment assessment = assessmentService.getAssessmentByUserAndAssessmentIdAndClassId(user, id, classId);
         return ResponseEntity.ok(assessmentStudentService.geAssessmentDetailsDTO(assessment, classId));
@@ -65,6 +66,23 @@ public class AssessmentController {
     public ResponseEntity<List<PendingAssessmentProjection>> getPendingAssessments() {
         String user = userAuthentication.getCurrentUser();
         return ResponseEntity.ok(assessmentService.getPendingAssessments(user));
+    }
+
+    @GetMapping("/{id}/edit-info")
+    public ResponseEntity<AssessmentEditInfoDTO> getAssessmentEditInfo(@PathVariable UUID id) {
+        String user = userAuthentication.getCurrentUser();
+        return ResponseEntity.ok(assessmentService.getAssessmentEditInfo(user, id));
+    }
+
+    @PutMapping("/{id}")
+    @Transactional
+    public ResponseEntity<Void> editAssessment(@PathVariable UUID id, @RequestBody EditAssessmentDTO dto) {
+        String user = userAuthentication.getCurrentUser();
+        boolean hasAnyEvaluation = assessmentAnswerService.hasAnyAnswerForAssessment(id);
+        Assessment editedAssessment = assessmentService.editAssessment(user, id, dto.name(), dto.assessmentDate());
+        assessmentQuestionService.editCategoriesFromAssessment(editedAssessment, dto.questions(), hasAnyEvaluation);
+        assessmentService.editClasses(editedAssessment, dto.classes());
+        return ResponseEntity.noContent().build();
     }
 
 }

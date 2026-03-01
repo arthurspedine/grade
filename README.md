@@ -4,53 +4,59 @@
 [![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-blue.svg)](https://www.mysql.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-> **Note**: This is the backend repository. The frontend application is available in a separate repository: [Grade Frontend Repository](https://github.com/arthurspedine/grade-frontend)
 
-## 🚀 Live Application
+> **Note:** This is the **backend** repository. The frontend application is available in a separate repository: [Grade Frontend Repository](https://github.com/arthurspedine/grade-frontend)
 
-**Access the application online**: [https://grade.use3w.com](https://grade.use3w.com)
+---
 
 ## 🎯 Overview
 
-Grade is a comprehensive assessment management system designed to streamline the process of creating, managing, and evaluating student assessments. This repository contains the **backend API** built with Spring Boot that powers the Grade platform.
-
+**Grade** is a comprehensive assessment management system designed to streamline the process of creating, managing, and evaluating student assessments. This repository contains the **backend REST API** built with Spring Boot that powers the Grade platform.
 
 ### Key Features
-- **Assessment Management**: Create and organize assessments for different classes
-- **Multi-Category Evaluation**: Evaluate students across multiple competency categories per question
-- **AI-Powered Feedback**: Generate personalized feedback using OpenAI integration
-- **PDF Export**: Export individual student evaluations as professionally formatted PDF reports
-- **Dashboard Analytics**: View comprehensive performance metrics and insights
-- **Class Management**: Organize students into classes and manage their assessments
-- **Secure Authentication**: OAuth2-based authentication and authorization
 
-## 🚀 PDF Export Feature
+- **Assessment Management** — Create, edit, and organize assessments across multiple classes
+- **Multi-Category Evaluation** — Evaluate students across multiple competency categories per question
+- **AI-Powered Feedback** — Generate personalized feedback using OpenAI integration
+- **PDF Export** — Export individual student evaluations as professionally formatted PDF reports
+- **Dashboard Analytics** — View comprehensive performance metrics and insights
+- **Class Management** — Organize students into classes with CSV import support
+- **Smart Student Sync** — Automatically syncs student rosters with not-started assessments when classes are edited
+- **Secure Authentication** — OAuth2-based authentication and authorization
+
+---
+
+## 📄 PDF Export Feature
 
 The application includes a robust PDF generation system that allows educators to export detailed student evaluation reports. Each PDF includes:
 
-- **Student Information**: Name, RM (student ID), class, and assessment details
-- **Performance Breakdown**: Question-by-question analysis with category scores
-- **Visual Progress Indicators**: Color-coded progress bars showing performance levels
-  - 🟢 Green: ≥70% (Good performance)
-  - 🟠 Orange: 50-69% (Moderate performance)
-  - 🔴 Red: <50% (Needs improvement)
-- **AI-Generated Feedback**: Personalized feedback based on student performance
-- **Multi-page Support**: Automatically handles content overflow across multiple pages
-- 
+- **Student Information** — Name, RM (student ID), class, and assessment details
+- **Performance Breakdown** — Question-by-question analysis with category scores
+- **Visual Progress Indicators** — Color-coded progress bars showing performance levels
+  - 🟢 **Green:** ≥70% (Good performance)
+  - 🟠 **Orange:** 50–69% (Moderate performance)
+  - 🔴 **Red:** <50% (Needs improvement)
+- **AI-Generated Feedback** — Personalized feedback based on student performance
+- **Multi-page Support** — Automatically handles content overflow across multiple pages
+
+---
+
 ## 🛠️ Technology Stack
 
-- **Java 17**
-- **Spring Boot 3.4.0**
-  - Spring Web
-  - Spring Data JPA
-  - Spring Security
-  - OAuth2 Authorization Server
-- **Spring AI** with OpenAI integration
-- **MySQL** database
-- **Flyway** for database migrations
-- **Apache PDFBox 3.0.3** for PDF generation
-- **OpenCSV** for CSV file processing
-- **Docker** and Docker Compose for containerization
+| Layer            | Technology                                |
+|------------------|-------------------------------------------|
+| Language         | Java 17                                   |
+| Framework        | Spring Boot 3.4.0                         |
+| Security         | Spring Security + OAuth2 Authorization    |
+| Persistence      | Spring Data JPA + MySQL 8.0               |
+| Migrations       | Flyway                                    |
+| AI Integration   | Spring AI + OpenAI                        |
+| PDF Generation   | Apache PDFBox 3.0.3                       |
+| CSV Processing   | OpenCSV                                   |
+| Monitoring       | New Relic                                 |
+| Containerization | Docker & Docker Compose                   |
+
+---
 
 ## 📦 Prerequisites
 
@@ -58,6 +64,8 @@ The application includes a robust PDF generation system that allows educators to
 - MySQL 8.0+
 - Docker and Docker Compose (optional)
 - OpenAI API key (for AI feedback features)
+
+---
 
 ## ⚙️ Installation
 
@@ -76,7 +84,7 @@ Create the following environment variables or update the application configurati
 export GRADE_DB_URL=jdbc:mysql://localhost:3306/grade
 export GRADE_DB_USER=your_db_username
 export GRADE_DB_PASSWORD=your_db_password
-export GRADE_OPENAI_KEY=your_openai_api_key # or set "none" if not using OpenAI
+export GRADE_OPENAI_KEY=your_openai_api_key  # or set "none" if not using OpenAI
 export PORT=3010
 ```
 
@@ -104,7 +112,7 @@ docker-compose -f docker-compose.dev.yml up
 
 #### Using Docker Compose (Production)
 
-> **Important:** Make sure to set the frontend environments before starting the containers.
+> **Important:** Make sure to set the frontend environment variables before starting the containers.
 
 ```bash
 export GOOGLE_CLIENT_ID=your_google_client_id
@@ -114,41 +122,66 @@ export NEXTAUTH_URL=http://localhost:3000
 export BACKEND_URL=http://localhost:3010
 ```
 
-- Now start the Docker containers:
+Then start the Docker containers:
 
 ```bash
 docker-compose up -d
 ```
 
-##### The application will start on `http://localhost:3010`
+The application will start on `http://localhost:3010`.
+
+---
 
 ## 📝 API Documentation
 
 API endpoints are organized by domain:
 
-- `/classes` - Class management operations
-- `/students` - Student administration
-- `/assessments` - Assessment operations
-- `/evaluate` - Evaluate Assessment operations
-- `/dashboard` - Dashboard endpoints
+| Prefix         | Description                      |
+|----------------|----------------------------------|
+| `/classes`     | Class management operations      |
+| `/students`    | Student administration           |
+| `/assessments` | Assessment CRUD & edit-info      |
+| `/evaluate`    | Student evaluation operations    |
+| `/dashboard`   | Dashboard & analytics endpoints  |
+
+---
+
+## 🏗️ Project Structure
+
+```
+src/main/java/com/use3w/grade/
+├── controller/        # REST controllers
+├── dto/               # Data Transfer Objects (request/response)
+├── infra/             # Infrastructure (security, exception handling)
+├── model/             # JPA entities
+├── projection/        # Spring Data projections
+├── repository/        # Spring Data JPA repositories
+├── service/           # Business logic layer
+└── util/              # Utilities (CSV reader, PDF writer, auth)
+```
+
+---
 
 ## 🗺️ Roadmap
-- [x] Phase 1 - Initial Release
+
+- [x] **Phase 1 — Initial Release**
   - [x] CSV Import
   - [x] Class Management
   - [x] Student Administration
   - [x] Assessment Creation
   - [x] Basic Grading System
   - [x] Database Migration with Flyway
-- [x] Phase 2 - Advanced Features
+- [x] **Phase 2 — Advanced Features**
   - [x] Multi-Category Evaluation
   - [x] OAuth2 Authentication
   - [x] AI-Powered Feedback with OpenAI
   - [x] PDF Export Functionality
-- [ ] Phase 3 - Architecture & Foundations
+- [ ] **Phase 3 — Architecture & Improvements**
   - [ ] Adjust to **Clean Architecture**
-
+  
 *This roadmap will be updated with specific features and milestones.*
+
+---
 
 ## 🤝 Contributing
 
@@ -158,9 +191,13 @@ API endpoints are organized by domain:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+---
+
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+---
 
 ## 🆘 Support
 

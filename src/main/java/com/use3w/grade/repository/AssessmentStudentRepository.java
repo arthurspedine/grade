@@ -2,11 +2,13 @@ package com.use3w.grade.repository;
 
 import com.use3w.grade.model.Assessment;
 import com.use3w.grade.model.AssessmentStudent;
+import com.use3w.grade.model.Class;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface AssessmentStudentRepository extends JpaRepository<AssessmentStudent, UUID> {
@@ -26,4 +28,46 @@ public interface AssessmentStudentRepository extends JpaRepository<AssessmentStu
             """)
     AssessmentStudent findByIdAndUser(@Param("createdBy") String createdBy, @Param("id") UUID id);
 
+    @Query("""
+        select
+                exists (
+                    select 1
+                    from AssessmentStudent aSt
+                    join AssessmentAnswer answer
+                        on answer.assessmentStudentId = aSt.id
+                    where aSt.classId = :classId
+                    and aSt.assessment.id = :assessmentId
+                )
+""")
+    boolean hasEvaluationAlreadyStartedByClassAndAssessment(@Param("classId") UUID classId, @Param("assessmentId") UUID assessmentId);
+
+    @Query(value = """
+        select aSt 
+           from AssessmentStudent aSt
+           where aSt.assessment.id = :assessmentId
+           and aSt.classId in (:classes)
+   """)
+    Set<AssessmentStudent> findAssessmentStudentByAssessmentAndClasses(
+            @Param("assessmentId") UUID assessmentId,
+            @Param("classes") Set<UUID> classes
+    );
+
+    @Query("""
+        select aSt from AssessmentStudent aSt
+        where aSt.assessment.id = :assessmentId
+        and aSt.classId = :classId
+        and aSt.student.rm in (:studentRms)
+    """)
+    Set<AssessmentStudent> findByAssessmentAndClassAndStudents(
+            @Param("assessmentId") UUID assessmentId,
+            @Param("classId") UUID classId,
+            @Param("studentRms") Set<String> studentRms
+    );
+
+    @Query("""
+        select aSt.assessment from AssessmentStudent aSt
+        where aSt.classId = :classId
+        group by aSt.assessment
+    """)
+    List<Assessment> findAssessmentsByClassId(@Param("classId") UUID classId);
 }

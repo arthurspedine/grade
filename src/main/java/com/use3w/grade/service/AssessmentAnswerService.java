@@ -30,4 +30,8 @@ public class AssessmentAnswerService {
     public Set<AssessmentAnswer> findAllByAssessmentStudentId(UUID id) {
         return repository.findAllByAssessmentStudentId(id);
     }
+
+    public boolean hasAnyAnswerForAssessment(UUID assessmentId) {
+        return repository.hasAnyAnswerForAssessment(assessmentId);
+    }
 }

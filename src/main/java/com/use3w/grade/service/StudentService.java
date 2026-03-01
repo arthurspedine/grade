@@ -1,5 +1,6 @@
 package com.use3w.grade.service;
 
+import com.use3w.grade.model.Assessment;
 import com.use3w.grade.model.Class;
 import com.use3w.grade.model.Student;
 import com.use3w.grade.projection.StudentClassProjection;
@@ -24,10 +25,12 @@ public class StudentService {
 
     private final StudentRepository repository;
     private final CsvReader<Student> reader;
+    private final AssessmentStudentService assessmentStudentService;
 
-    public StudentService(StudentRepository repository, CsvReader<Student> reader) {
+    public StudentService(StudentRepository repository, CsvReader<Student> reader, AssessmentStudentService assessmentStudentService) {
         this.repository = repository;
         this.reader = reader;
+        this.assessmentStudentService = assessmentStudentService;
     }
 
     @Transactional
@@ -84,6 +87,9 @@ public class StudentService {
 
             repository.saveAll(studentsToRemove);
             repository.saveAll(studentsToAdd);
+
+            // Sync students in NOT_STARTED assessments linked to this class
+            syncStudentsInNotStartedAssessments(editedClass, studentsToAdd, studentsToRemove);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -149,5 +155,31 @@ public class StudentService {
             student.getClasses().remove(classToBeRemoved);
             studentSet.remove(student);
         });
+    }
+
+    private void syncStudentsInNotStartedAssessments(Class editedClass, List<Student> studentsToAdd, List<Student> studentsToRemove) {
+        List<Assessment> assessments = assessmentStudentService.findAssessmentsByClassId(editedClass.getId());
+
+        for (Assessment assessment : assessments) {
+            boolean hasStarted = assessmentStudentService.hasEvaluationAlreadyStartedByClassAndAssessment(
+                    editedClass.getId(), assessment.getId());
+
+            if (!hasStarted) {
+                // Add new students to this assessment
+                if (!studentsToAdd.isEmpty()) {
+                    Set<Student> studentsSet = Set.copyOf(studentsToAdd);
+                    assessmentStudentService.addStudentsToAssessmentForClass(assessment, editedClass.getId(), studentsSet);
+                }
+
+                // Remove students from this assessment
+                if (!studentsToRemove.isEmpty()) {
+                    Set<String> rmsToRemove = studentsToRemove.stream()
+                            .map(Student::getRm)
+                            .collect(Collectors.toSet());
+                    assessmentStudentService.removeStudentsFromAssessmentByClass(
+                            assessment.getId(), editedClass.getId(), rmsToRemove);
+                }
+            }
+        }
     }
 }

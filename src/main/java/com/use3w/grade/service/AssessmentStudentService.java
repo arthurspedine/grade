@@ -3,6 +3,7 @@ package com.use3w.grade.service;
 import com.use3w.grade.dto.*;
 import com.use3w.grade.infra.exception.AssessmentNotEvaluatedException;
 import com.use3w.grade.model.*;
+import com.use3w.grade.model.Class;
 import com.use3w.grade.repository.AssessmentStudentRepository;
 import com.use3w.grade.util.pdf.PdfWriter;
 import jakarta.transaction.Transactional;
@@ -30,8 +31,8 @@ public class AssessmentStudentService {
         this.classService = classService;
     }
 
-    public void addStudentsToAssessment(Assessment assessment) {
-        Set<AssessmentStudent> studentsToAdd = assessment.getClasses().stream()
+    public void addStudentsToAssessment(Assessment assessment, Set<Class> classes) {
+        Set<AssessmentStudent> studentsToAdd = classes.stream()
                 .flatMap(classEntity -> classEntity.getStudents().stream()
                         .map(student -> new AssessmentStudent(student, assessment, classEntity.getId())))
                 .collect(Collectors.toSet());
@@ -54,7 +55,7 @@ public class AssessmentStudentService {
                     new AssessmentStudentInfoDTO(assessmentStudent.getId(), assessment.getId(),
                             assessmentStudent.getClassId(),
                             student.getName(),
-                    student.getRm()), assessmentStudent.getFinished()
+                            student.getRm()), assessmentStudent.getFinished()
             );
         }).toList();
         return new AssessmentInfoDTO(assessment.getName(), countEvaluatedStudents[0], students);
@@ -65,7 +66,7 @@ public class AssessmentStudentService {
         Student student = assessmentStudent.getStudent();
 
         if (assessmentStudent.getFinished()) {
-            Set<AssessmentAnswer> assessmentAnswers =  assessmentAnswerService.findAllByAssessmentStudentId(id);
+            Set<AssessmentAnswer> assessmentAnswers = assessmentAnswerService.findAllByAssessmentStudentId(id);
             Map<Integer, List<AssessmentQuestion>> questionsByNumber = assessmentStudent.getAssessment().getQuestions().stream()
                     .collect(Collectors.groupingBy(AssessmentQuestion::getQuestionNumber));
 
@@ -87,13 +88,13 @@ public class AssessmentStudentService {
             Map<Integer, List<AssessmentQuestion>> questionsByNumber = assessmentStudent.getAssessment().getQuestions().stream()
                     .collect(Collectors.groupingBy(AssessmentQuestion::getQuestionNumber));
 
-            List<AssessmentEvaluationQuestionDTO> questions =  questionsByNumber.entrySet().stream()
+            List<AssessmentEvaluationQuestionDTO> questions = questionsByNumber.entrySet().stream()
                     .map(entry -> {
                         Integer questionNumber = entry.getKey();
                         List<EvaluationCategoryDTO> categories = entry.getValue().stream()
                                 .map(question -> new EvaluationCategoryDTO(
                                         question.getId(), question.getName(),
-                                        question.getScore()
+                                        question.getScore(), question.getCategoryNumber()
                                 )).toList();
                         return new AssessmentEvaluationQuestionDTO(questionNumber, categories);
                     })
@@ -134,7 +135,7 @@ public class AssessmentStudentService {
             throw new AssessmentNotEvaluatedException("Avaliação não finalizada para este estudante.");
         }
         Student student = assessmentStudent.getStudent();
-        Set<AssessmentAnswer> assessmentAnswers =  assessmentAnswerService.findAllByAssessmentStudentId(id);
+        Set<AssessmentAnswer> assessmentAnswers = assessmentAnswerService.findAllByAssessmentStudentId(id);
         Map<Integer, List<AssessmentQuestion>> questionsByNumber = assessmentStudent.getAssessment().getQuestions().stream()
                 .collect(Collectors.groupingBy(AssessmentQuestion::getQuestionNumber));
 
@@ -165,6 +166,7 @@ public class AssessmentStudentService {
                             .map(question -> new CategoryAnswerDTO(
                                     question.getId(), question.getName(),
                                     question.getScore(),
+                                    question.getCategoryNumber(),
                                     assessmentAnswers.stream()
                                             .filter(answer -> answer.getQuestionId().equals(question.getId()))
                                             .findFirst()
@@ -173,5 +175,30 @@ public class AssessmentStudentService {
                             )).toList();
                     return new AssessmentAnswerDTO(questionNumber, categories);
                 }).toList();
+    }
+
+    public boolean hasEvaluationAlreadyStartedByClassAndAssessment(UUID classId, UUID assessmentId) {
+        return repository.hasEvaluationAlreadyStartedByClassAndAssessment(classId, assessmentId);
+    }
+
+    public void removeStudentsFromAssessment(Assessment assessment, Set<Class> classes) {
+        Set<AssessmentStudent> assessmentStudentsToRemove = repository.findAssessmentStudentByAssessmentAndClasses(assessment.getId(), classes.stream().map(Class::getId).collect(Collectors.toSet()));
+        repository.deleteAll(assessmentStudentsToRemove);
+    }
+
+    public List<Assessment> findAssessmentsByClassId(UUID classId) {
+        return repository.findAssessmentsByClassId(classId);
+    }
+
+    public void addStudentsToAssessmentForClass(Assessment assessment, UUID classId, Set<Student> students) {
+        Set<AssessmentStudent> studentsToAdd = students.stream()
+                .map(student -> new AssessmentStudent(student, assessment, classId))
+                .collect(Collectors.toSet());
+        repository.saveAll(studentsToAdd);
+    }
+
+    public void removeStudentsFromAssessmentByClass(UUID assessmentId, UUID classId, Set<String> studentRms) {
+        Set<AssessmentStudent> toRemove = repository.findByAssessmentAndClassAndStudents(assessmentId, classId, studentRms);
+        repository.deleteAll(toRemove);
     }
 }
