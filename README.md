@@ -17,31 +17,13 @@
 
 - **Assessment Management** — Create, edit, and organize assessments across multiple classes
 - **Multi-Category Evaluation** — Evaluate students across multiple competency categories per question
-- **AI-Powered Feedback** — Generate personalized feedback using OpenAI integration
-- **PDF Export** — Export individual student evaluations as professionally formatted PDF reports
 - **Dashboard Analytics** — View comprehensive performance metrics and insights
 - **Class Management** — Organize students into classes with CSV import support
-- **Smart Student Sync** — Automatically syncs student rosters with not-started assessments when classes are edited
 - **Secure Authentication** — OAuth2-based authentication and authorization
 
 ---
 
-## 📄 PDF Export Feature
-
-The application includes a robust PDF generation system that allows educators to export detailed student evaluation reports. Each PDF includes:
-
-- **Student Information** — Name, RM (student ID), class, and assessment details
-- **Performance Breakdown** — Question-by-question analysis with category scores
-- **Visual Progress Indicators** — Color-coded progress bars showing performance levels
-  - 🟢 **Green:** ≥70% (Good performance)
-  - 🟠 **Orange:** 50–69% (Moderate performance)
-  - 🔴 **Red:** <50% (Needs improvement)
-- **AI-Generated Feedback** — Personalized feedback based on student performance
-- **Multi-page Support** — Automatically handles content overflow across multiple pages
-
----
-
-## 🛠️ Technology Stack
+## ️ Technology Stack
 
 | Layer            | Technology                                |
 |------------------|-------------------------------------------|
@@ -53,7 +35,6 @@ The application includes a robust PDF generation system that allows educators to
 | AI Integration   | Spring AI + OpenAI                        |
 | PDF Generation   | Apache PDFBox 3.0.3                       |
 | CSV Processing   | OpenCSV                                   |
-| Monitoring       | New Relic                                 |
 | Containerization | Docker & Docker Compose                   |
 
 ---
@@ -70,7 +51,6 @@ The application includes a robust PDF generation system that allows educators to
 ## ⚙️ Installation
 
 ### 1. Clone the Repository
-
 ```bash
 git clone https://github.com/arthurspedine/grade.git grade-backend
 cd grade-backend
@@ -78,41 +58,28 @@ cd grade-backend
 
 ### 2. Environment Configuration
 
-Create the following environment variables or update the application configuration:
+Create a `.env` file at the root of the project with the following variables:
 
-```bash
-export GRADE_DB_URL=jdbc:mysql://localhost:3306/grade
-export GRADE_DB_USER=your_db_username
-export GRADE_DB_PASSWORD=your_db_password
-export GRADE_OPENAI_KEY=your_openai_api_key  # or set "none" if not using OpenAI
-export PORT=3010
+```env
+# Database
+GRADE_DB_URL=jdbc:mysql://localhost:3306/grade
+GRADE_DB_USER=your_db_username
+GRADE_DB_PASSWORD=your_db_password
+
+# OpenAI (set "none" if not using)
+GRADE_OPENAI_KEY=your_openai_api_key
+
+# Server
+PORT=3010
 ```
 
-### 3. Database Setup
+---
 
-Ensure MySQL is running and create the database:
+### Option A — Production (Recommended)
 
-```sql
-CREATE DATABASE grade CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
+> Starts the full stack (database + backend + frontend) in a single command.
 
-### 4. Run the Application
-
-#### Using Gradle Wrapper (Recommended)
-
-```bash
-./gradlew bootRun
-```
-
-#### Using Docker Compose (Development)
-
-```bash
-docker-compose -f docker-compose.dev.yml up
-```
-
-#### Using Docker Compose (Production)
-
-> **Important:** Make sure to set the frontend environment variables before starting the containers.
+Set the required environment variables:
 
 ```bash
 export GOOGLE_CLIENT_ID=your_google_client_id
@@ -122,10 +89,28 @@ export NEXTAUTH_URL=http://localhost:3000
 export BACKEND_URL=http://localhost:3010
 ```
 
-Then start the Docker containers:
+Then bring everything up:
 
 ```bash
 docker-compose up -d
+```
+
+The backend will be available at `http://localhost:3010` and the frontend at `http://localhost:3000`.
+
+---
+
+### Option B — Local Development
+
+Use the dev Docker Compose to spin up only the database, then run the application locally.
+
+**1. Start the database:**
+```bash
+docker-compose -f docker-compose.dev.yml up -d
+```
+
+**2. Run the application:**
+```bash
+./gradlew bootRun
 ```
 
 The application will start on `http://localhost:3010`.
@@ -157,7 +142,7 @@ src/main/java/com/use3w/grade/
 ├── projection/        # Spring Data projections
 ├── repository/        # Spring Data JPA repositories
 ├── service/           # Business logic layer
-└── util/              # Utilities (CSV reader, PDF writer, auth)
+└── util/              # Utilities (CSV processing, authentication)
 ```
 
 ---
@@ -178,6 +163,9 @@ src/main/java/com/use3w/grade/
   - [x] PDF Export Functionality
 - [ ] **Phase 3 — Architecture & Improvements**
   - [ ] Adjust to **Clean Architecture**
+  - [ ] Improve logging and error handling
+  - [ ] Add comprehensive unit and integration tests
+  - [ ] Implement monitoring with New Relic
   
 *This roadmap will be updated with specific features and milestones.*
 
