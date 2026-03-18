@@ -10,6 +10,8 @@ services:
       MYSQL_DATABASE: grade
     ports:
       - "3306:3306"
+    networks:
+      - grade-network
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -33,6 +35,8 @@ services:
       SPRING_PROFILES_ACTIVE: prod
     ports:
       - "3010:3010"
+    networks:
+      - grade-network
 
   frontend:
     image: spedine/grade-web
@@ -47,6 +51,12 @@ services:
       BACKEND_URL: http://backend:3010
     ports:
       - "3000:3000"
+    networks:
+        - grade-network
+
+networks:
+  grade-network:
+    driver: bridge
 
 volumes:
   mysql_data:
